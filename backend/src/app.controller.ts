@@ -24,11 +24,15 @@ export class AppController {
       return {
         message: 'Database connection successful',
         userCount,
+        timestamp: new Date().toISOString()
       };
     } catch (error) {
+      console.error('Database connection error:', error);
       return {
         message: 'Database connection failed',
         error: error.message,
+        details: error.stack,
+        timestamp: new Date().toISOString()
       };
     }
   }

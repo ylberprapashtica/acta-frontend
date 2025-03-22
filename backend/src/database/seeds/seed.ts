@@ -25,9 +25,9 @@ async function bootstrap() {
 
   console.log('Starting seed process...');
 
-  // Create 100 companies
+  // Create 10 companies
   const companies: Company[] = [];
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 10; i++) {
     const company = companyRepository.create({
       businessName: faker.company.name(),
       tradeName: faker.company.name(),
@@ -44,7 +44,7 @@ async function bootstrap() {
       bankAccount: faker.finance.accountNumber(),
     });
     companies.push(await companyRepository.save(company));
-    console.log(`Created company ${i + 1}/100`);
+    console.log(`Created company ${i + 1}/10`);
   }
 
   // Create 100 articles for each company
@@ -75,8 +75,8 @@ async function bootstrap() {
         companies.filter(c => c.id !== issuer.id)
       );
 
-      // Generate 1-5 random items for the invoice
-      const itemCount = faker.number.int({ min: 1, max: 5 });
+      // Generate 1-10 random items for the invoice
+      const itemCount = faker.number.int({ min: 1, max: 10 });
       const items = Array.from({ length: itemCount }, () => {
         const article = faker.helpers.arrayElement(issuerArticles);
         return {
