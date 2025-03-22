@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Company } from './entities/company.entity';
@@ -12,8 +12,24 @@ export class CompanyService {
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
-    const company = this.companyRepository.create(createCompanyDto);
-    return await this.companyRepository.save(company);
+    try {
+      const company = this.companyRepository.create(createCompanyDto);
+      return await this.companyRepository.save(company);
+    } catch (error) {
+      if (error.code === '23505') { // PostgreSQL unique violation code
+        const detail = error.detail || '';
+        if (detail.includes('uniqueIdentificationNumber')) {
+          throw new ConflictException('A company with this Unique Identification Number already exists');
+        } else if (detail.includes('businessNumber')) {
+          throw new ConflictException('A company with this Business Number already exists');
+        } else if (detail.includes('fiscalNumber')) {
+          throw new ConflictException('A company with this Fiscal Number already exists');
+        } else if (detail.includes('vatNumber')) {
+          throw new ConflictException('A company with this VAT Number already exists');
+        }
+      }
+      throw error;
+    }
   }
 
   async findAll(): Promise<Company[]> {
@@ -29,9 +45,25 @@ export class CompanyService {
   }
 
   async update(id: string, updateCompanyDto: Partial<CreateCompanyDto>): Promise<Company> {
-    const company = await this.findOne(id);
-    Object.assign(company, updateCompanyDto);
-    return await this.companyRepository.save(company);
+    try {
+      const company = await this.findOne(id);
+      Object.assign(company, updateCompanyDto);
+      return await this.companyRepository.save(company);
+    } catch (error) {
+      if (error.code === '23505') { // PostgreSQL unique violation code
+        const detail = error.detail || '';
+        if (detail.includes('uniqueIdentificationNumber')) {
+          throw new ConflictException('A company with this Unique Identification Number already exists');
+        } else if (detail.includes('businessNumber')) {
+          throw new ConflictException('A company with this Business Number already exists');
+        } else if (detail.includes('fiscalNumber')) {
+          throw new ConflictException('A company with this Fiscal Number already exists');
+        } else if (detail.includes('vatNumber')) {
+          throw new ConflictException('A company with this VAT Number already exists');
+        }
+      }
+      throw error;
+    }
   }
 
   async remove(id: string): Promise<void> {

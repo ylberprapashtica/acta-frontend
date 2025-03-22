@@ -91,16 +91,16 @@ export const CompanyList: React.FC = () => {
                   Business Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Trade Name
+                  Unique Identification Number
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Business Type
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  VAT Number
+                  Phone Number
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Municipality
+                  Email
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -114,16 +114,16 @@ export const CompanyList: React.FC = () => {
                     {company.businessName}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {company.tradeName}
+                    {company.uniqueIdentificationNumber}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {company.businessType}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {company.vatNumber}
+                    {company.phoneNumber}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {company.municipality}
+                    {company.email}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <div className="flex justify-center space-x-2">

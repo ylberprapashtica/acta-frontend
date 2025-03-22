@@ -7,8 +7,7 @@ export class CreateCompanyDto {
   businessName: string;
 
   @IsString()
-  @IsNotEmpty()
-  tradeName: string;
+  tradeName?: string;
 
   @IsEnum(BusinessType)
   businessType: BusinessType;
@@ -18,16 +17,13 @@ export class CreateCompanyDto {
   uniqueIdentificationNumber: string;
 
   @IsString()
-  @IsNotEmpty()
-  businessNumber: string;
+  businessNumber?: string;
 
   @IsString()
-  @IsNotEmpty()
-  fiscalNumber: string;
+  fiscalNumber?: string;
 
   @IsString()
-  @IsNotEmpty()
-  vatNumber: string;
+  vatNumber?: string;
 
   @IsDateString()
   registrationDate: Date;
@@ -48,6 +44,5 @@ export class CreateCompanyDto {
   email: string;
 
   @IsString()
-  @IsNotEmpty()
-  bankAccount: string;
+  bankAccount?: string;
 } 

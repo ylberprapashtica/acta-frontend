@@ -15,7 +15,7 @@ export class Company {
   @Column()
   businessName: string;
 
-  @Column()
+  @Column({ nullable: true })
   tradeName: string;
 
   @Column({
@@ -28,13 +28,13 @@ export class Company {
   @Column({ unique: true })
   uniqueIdentificationNumber: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   businessNumber: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   fiscalNumber: string;
 
-  @Column({ unique: true })
+  @Column({ nullable: true })
   vatNumber: string;
 
   @Column({ type: 'date' })
@@ -52,7 +52,7 @@ export class Company {
   @Column()
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   bankAccount: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

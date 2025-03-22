@@ -23,6 +23,7 @@ export const CompanyForm: React.FC = () => {
     email: '',
     bankAccount: '',
   });
+  const [businessInfoText, setBusinessInfoText] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -56,8 +57,8 @@ export const CompanyForm: React.FC = () => {
         await companyService.create(formData);
       }
       navigate('/companies');
-    } catch (err) {
-      setError('Failed to save company');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to save company');
       console.error(err);
     } finally {
       setLoading(false);
@@ -67,6 +68,71 @@ export const CompanyForm: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const parseBusinessInfo = () => {
+    try {
+      const lines = businessInfoText.split('\n');
+      const newFormData = { ...formData };
+      
+      lines.forEach(line => {
+        const [key, value] = line.split('\t').map(s => s.trim());
+        if (!key || !value) return;
+
+        switch (key.toLowerCase()) {
+          case 'emri i biznesit':
+            newFormData.businessName = value;
+            break;
+          case 'emri tregtar':
+            newFormData.tradeName = value;
+            break;
+          case 'lloji biznesit':
+            // Map Albanian business types to BusinessType enum
+            const businessTypeMap: { [key: string]: BusinessType } = {
+              'shoqëri me përgjegjësi të kufizuara': BusinessType.LLC,
+              'person fizik': BusinessType.SOLE_PROPRIETORSHIP,
+              // Add more mappings as needed
+            };
+            const mappedType = businessTypeMap[value.toLowerCase()];
+            if (mappedType) {
+              newFormData.businessType = mappedType;
+            }
+            break;
+          case 'numri unik identifikues':
+            newFormData.uniqueIdentificationNumber = value;
+            break;
+          case 'numri i biznesit':
+            newFormData.businessNumber = value;
+            break;
+          case 'numri fiskal':
+            newFormData.fiscalNumber = value;
+            break;
+          case 'data e regjistrimit':
+            // Convert date from DD/MM/YYYY to YYYY-MM-DD
+            const [day, month, year] = value.split('/');
+            newFormData.registrationDate = `${year}-${month}-${day}`;
+            break;
+          case 'komuna':
+            newFormData.municipality = value;
+            break;
+          case 'adresa':
+            newFormData.address = value;
+            break;
+          case 'telefoni':
+            newFormData.phoneNumber = value;
+            break;
+          case 'e-mail':
+            newFormData.email = value;
+            break;
+        }
+      });
+
+      setFormData(newFormData);
+      setError(null);
+    } catch (err) {
+      setError('Failed to parse business information');
+      console.error(err);
+    }
   };
 
   if (loading) {
@@ -98,6 +164,26 @@ export const CompanyForm: React.FC = () => {
         </div>
       )}
 
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Paste Business Information
+        </label>
+        <textarea
+          value={businessInfoText}
+          onChange={(e) => setBusinessInfoText(e.target.value)}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+          rows={6}
+          placeholder="Paste the business information here..."
+        />
+        <button
+          type="button"
+          onClick={parseBusinessInfo}
+          className="mt-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          Parse and Fill Form
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="max-w-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="form-group">
@@ -123,7 +209,6 @@ export const CompanyForm: React.FC = () => {
               name="tradeName"
               value={formData.tradeName}
               onChange={handleChange}
-              required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
           </div>
@@ -168,7 +253,6 @@ export const CompanyForm: React.FC = () => {
               name="businessNumber"
               value={formData.businessNumber}
               onChange={handleChange}
-              required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
           </div>
@@ -182,7 +266,6 @@ export const CompanyForm: React.FC = () => {
               name="fiscalNumber"
               value={formData.fiscalNumber}
               onChange={handleChange}
-              required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
           </div>
@@ -196,7 +279,6 @@ export const CompanyForm: React.FC = () => {
               name="vatNumber"
               value={formData.vatNumber}
               onChange={handleChange}
-              required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
           </div>
@@ -280,7 +362,6 @@ export const CompanyForm: React.FC = () => {
               name="bankAccount"
               value={formData.bankAccount}
               onChange={handleChange}
-              required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
           </div>
