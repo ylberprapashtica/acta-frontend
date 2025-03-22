@@ -8,6 +8,10 @@ import { UsersModule } from './users/users.module';
 import { User } from './entities/user.entity';
 import { CompanyModule } from './company/company.module';
 import { Company } from './company/entities/company.entity';
+import { ArticleModule } from './article/article.module';
+import { Article } from './entities/article.entity';
+import { Invoice } from './entities/invoice.entity';
+import { InvoiceItem } from './entities/invoice-item.entity';
 
 @Module({
   imports: [
@@ -19,12 +23,14 @@ import { Company } from './company/entities/company.entity';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         ...configService.get('database'),
-        entities: [User, Company],
+        entities: [User, Company, Article, Invoice, InvoiceItem],
+        synchronize: true, // Be careful with this in production
       }),
       inject: [ConfigService],
     }),
     UsersModule,
     CompanyModule,
+    ArticleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

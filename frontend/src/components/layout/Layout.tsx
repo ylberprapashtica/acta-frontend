@@ -1,7 +1,13 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 
 export const Layout: React.FC = () => {
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    return location.pathname.startsWith(path);
+  };
+
   return (
     <div className="min-h-screen">
       {/* Navigation Header */}
@@ -21,11 +27,23 @@ export const Layout: React.FC = () => {
               {/* Navigation Links */}
               <div className="hidden sm:flex sm:ml-6 sm:space-x-8">
                 <Link to="/companies">
-                  <span className="text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 py-1 px-1 border-b-2 border-transparent">
+                  <span className={`text-sm font-medium py-1 px-1 border-b-2 ${
+                    isActive('/companies')
+                      ? 'text-blue-600 border-blue-500'
+                      : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-transparent'
+                  }`}>
                     Companies
                   </span>
                 </Link>
-                {/* Add more navigation links here as needed */}
+                <Link to="/articles">
+                  <span className={`text-sm font-medium py-1 px-1 border-b-2 ${
+                    isActive('/articles')
+                      ? 'text-blue-600 border-blue-500'
+                      : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-transparent'
+                  }`}>
+                    Articles
+                  </span>
+                </Link>
               </div>
             </div>
           </div>

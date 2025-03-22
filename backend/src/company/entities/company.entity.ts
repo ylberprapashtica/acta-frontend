@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Invoice } from '../../entities/invoice.entity';
 
 export enum BusinessType {
   SOLE_PROPRIETORSHIP = 'Sole Proprietorship',
@@ -54,6 +55,12 @@ export class Company {
 
   @Column({ nullable: true })
   bankAccount: string;
+
+  @OneToMany(() => Invoice, (invoice) => invoice.issuer)
+  issuedInvoices: Invoice[];
+
+  @OneToMany(() => Invoice, (invoice) => invoice.recipient)
+  receivedInvoices: Invoice[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

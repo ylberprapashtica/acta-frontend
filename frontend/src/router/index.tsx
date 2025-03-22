@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { CompanyList } from '../components/company/CompanyList';
 import { CompanyForm } from '../components/company/CompanyForm';
 import { Layout } from '../components/layout/Layout';
+import { ArticlePage } from '../pages/ArticlePage';
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
             element: <CompanyForm />,
           },
         ],
+      },
+      {
+        path: 'articles',
+        element: <ArticlePage />,
       },
     ],
   },
