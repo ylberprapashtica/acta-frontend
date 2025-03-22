@@ -44,6 +44,15 @@ export const Layout: React.FC = () => {
                     Articles
                   </span>
                 </Link>
+                <Link to="/invoices">
+                  <span className={`text-sm font-medium py-1 px-1 border-b-2 ${
+                    isActive('/invoices')
+                      ? 'text-blue-600 border-blue-500'
+                      : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-transparent'
+                  }`}>
+                    Invoices
+                  </span>
+                </Link>
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Article, VatCode } from '../types/article';
-import { ArticleService } from '../services/article.service';
+import { articleService } from '../services/article.service';
 
 interface ArticleListProps {
   onEdit: (article: Article) => void;
@@ -10,7 +10,6 @@ export function ArticleList({ onEdit }: ArticleListProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const articleService = ArticleService.getInstance();
 
   useEffect(() => {
     loadArticles();
@@ -19,9 +18,9 @@ export function ArticleList({ onEdit }: ArticleListProps) {
   const loadArticles = async () => {
     try {
       setLoading(true);
-      const data = await articleService.getAll();
+      const data = await articleService.getArticles();
       // Convert basePrice to number for each article
-      const articlesWithNumberPrices = data.map(article => ({
+      const articlesWithNumberPrices = data.map((article: Article) => ({
         ...article,
         basePrice: Number(article.basePrice)
       }));
@@ -39,7 +38,7 @@ export function ArticleList({ onEdit }: ArticleListProps) {
     }
 
     try {
-      await articleService.delete(id);
+      await articleService.deleteArticle(id);
       setArticles(articles.filter(article => article.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete article');

@@ -12,6 +12,7 @@ import { ArticleModule } from './article/article.module';
 import { Article } from './entities/article.entity';
 import { Invoice } from './entities/invoice.entity';
 import { InvoiceItem } from './entities/invoice-item.entity';
+import { InvoiceModule } from './invoice/invoice.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { InvoiceItem } from './entities/invoice-item.entity';
     UsersModule,
     CompanyModule,
     ArticleModule,
+    InvoiceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { Company } from '../company/entities/company.entity';
 import { InvoiceItem } from './invoice-item.entity';
 
@@ -22,7 +22,7 @@ export class Invoice {
   @ManyToOne(() => Company, (company: Company) => company.receivedInvoices)
   recipient: Company;
 
-  @OneToMany(() => InvoiceItem, (invoiceItem) => invoiceItem.invoice, { cascade: true })
+  @OneToMany(() => InvoiceItem, (invoiceItem: InvoiceItem) => invoiceItem.invoice, { cascade: true })
   items: InvoiceItem[];
 
   @Column('decimal', { precision: 10, scale: 2 })
@@ -36,4 +36,13 @@ export class Invoice {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  calculateTotals() {
+    if (this.items) {
+      this.totalAmount = this.items.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+      this.totalVat = this.items.reduce((sum, item) => sum + (item.vatAmount || 0), 0);
+    }
+  }
 } 

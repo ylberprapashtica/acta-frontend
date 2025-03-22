@@ -1,8 +1,17 @@
+import axios from 'axios';
+import { API_URL } from '../config';
 import { Article, CreateArticleDto, UpdateArticleDto } from '../types/article';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export interface Article {
+  id: number;
+  name: string;
+  unit: string;
+  code: string;
+  vatCode: string;
+  basePrice: number;
+}
 
-export class ArticleService {
+class ArticleService {
   private static instance: ArticleService;
   private baseUrl: string;
 
@@ -17,56 +26,29 @@ export class ArticleService {
     return ArticleService.instance;
   }
 
-  async getAll(): Promise<Article[]> {
-    const response = await fetch(this.baseUrl);
-    if (!response.ok) {
-      throw new Error('Failed to fetch articles');
-    }
-    return response.json();
+  async getArticles(): Promise<Article[]> {
+    const response = await axios.get(`${API_URL}/articles`);
+    return response.data;
   }
 
-  async getById(id: number): Promise<Article> {
-    const response = await fetch(`${this.baseUrl}/${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch article');
-    }
-    return response.json();
+  async getArticle(id: number): Promise<Article> {
+    const response = await axios.get(`${API_URL}/articles/${id}`);
+    return response.data;
   }
 
-  async create(article: CreateArticleDto): Promise<Article> {
-    const response = await fetch(this.baseUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(article),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create article');
-    }
-    return response.json();
+  async createArticle(data: Omit<Article, 'id'>): Promise<Article> {
+    const response = await axios.post(`${API_URL}/articles`, data);
+    return response.data;
   }
 
-  async update(id: number, article: UpdateArticleDto): Promise<Article> {
-    const response = await fetch(`${this.baseUrl}/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(article),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update article');
-    }
-    return response.json();
+  async updateArticle(id: number, data: Partial<Article>): Promise<Article> {
+    const response = await axios.patch(`${API_URL}/articles/${id}`, data);
+    return response.data;
   }
 
-  async delete(id: number): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete article');
-    }
+  async deleteArticle(id: number): Promise<void> {
+    await axios.delete(`${API_URL}/articles/${id}`);
   }
-} 
+}
+
+export const articleService = new ArticleService(); 

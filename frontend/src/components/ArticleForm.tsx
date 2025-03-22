@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Article, CreateArticleDto, VatCode } from '../types/article';
-import { ArticleService } from '../services/article.service';
+import { articleService } from '../services/article.service';
 
 interface ArticleFormProps {
   article?: Article;
@@ -17,7 +17,6 @@ export function ArticleForm({ article, onSuccess, onCancel }: ArticleFormProps) 
     basePrice: 0,
   });
   const [error, setError] = useState<string | null>(null);
-  const articleService = ArticleService.getInstance();
 
   useEffect(() => {
     if (article) {
@@ -37,9 +36,9 @@ export function ArticleForm({ article, onSuccess, onCancel }: ArticleFormProps) 
 
     try {
       if (article) {
-        await articleService.update(article.id, formData);
+        await articleService.updateArticle(article.id, formData);
       } else {
-        await articleService.create(formData);
+        await articleService.createArticle(formData);
       }
       onSuccess();
     } catch (err) {

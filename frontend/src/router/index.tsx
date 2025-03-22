@@ -3,6 +3,7 @@ import { CompanyList } from '../components/company/CompanyList';
 import { CompanyForm } from '../components/company/CompanyForm';
 import { Layout } from '../components/layout/Layout';
 import { ArticlePage } from '../pages/ArticlePage';
+import { InvoicesPage } from '../pages/InvoicesPage';
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
       {
         path: 'articles',
         element: <ArticlePage />,
+      },
+      {
+        path: 'invoices',
+        element: <InvoicesPage />,
       },
     ],
   },
