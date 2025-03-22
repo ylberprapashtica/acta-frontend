@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
 import { UsersModule } from './users/users.module';
 import { User } from './entities/user.entity';
+import { CompanyModule } from './company/company.module';
+import { Company } from './company/entities/company.entity';
 
 @Module({
   imports: [
@@ -17,11 +19,12 @@ import { User } from './entities/user.entity';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         ...configService.get('database'),
-        entities: [User],
+        entities: [User, Company],
       }),
       inject: [ConfigService],
     }),
     UsersModule,
+    CompanyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

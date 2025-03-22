@@ -1,0 +1,139 @@
+# Company Management System Documentation
+
+## Backend Structure (@backend)
+
+### Company Entity
+- Location: `backend/src/company/entities/company.entity.ts`
+- Primary key: UUID
+- Business fields:
+  - businessName (string)
+  - tradeName (string)
+  - businessType (enum: SOLE_PROPRIETORSHIP, PARTNERSHIP, LLC, CORPORATION)
+  - uniqueIdentificationNumber (string, unique)
+  - businessNumber (string, unique)
+  - fiscalNumber (string, unique)
+  - vatNumber (string, unique)
+  - registrationDate (date)
+  - municipality (string)
+  - address (string)
+  - phoneNumber (string)
+  - email (string)
+  - bankAccount (string)
+- Timestamps:
+  - createdAt (auto-generated)
+  - updatedAt (auto-updated)
+
+### DTOs
+- Location: `backend/src/company/dto/create-company.dto.ts`
+- Validation rules:
+  - All string fields: @IsString() and @IsNotEmpty()
+  - email: @IsEmail()
+  - registrationDate: @IsDateString()
+  - businessType: @IsEnum(BusinessType)
+
+### Service Layer
+- Location: `backend/src/company/company.service.ts`
+- CRUD operations:
+  - create(createCompanyDto)
+  - findAll()
+  - findOne(id)
+  - update(id, updateCompanyDto)
+  - remove(id)
+- Error handling for not found cases
+
+### Controller
+- Location: `backend/src/company/company.controller.ts`
+- REST endpoints:
+  - POST /companies
+  - GET /companies
+  - GET /companies/:id
+  - PATCH /companies/:id
+  - DELETE /companies/:id
+
+### Module
+- Location: `backend/src/company/company.module.ts`
+- Dependencies:
+  - TypeOrmModule.forFeature([Company])
+  - CompanyController
+  - CompanyService
+
+## Frontend Structure (@frontend)
+
+### Types
+- Location: `frontend/src/types/company.ts`
+- Interfaces:
+  - Company (full entity with timestamps)
+  - CreateCompanyDto (without timestamps)
+  - BusinessType enum
+
+### Services
+- Location: `frontend/src/services/companyService.ts`
+- API endpoints:
+  - getAll(): Promise<Company[]>
+  - getById(id: string): Promise<Company>
+  - create(company: CreateCompanyDto): Promise<Company>
+  - update(id: string, company: Partial<CreateCompanyDto>): Promise<Company>
+  - delete(id: string): Promise<void>
+- Base URL: '/api/companies'
+
+### Components
+
+#### CompanyList
+- Location: `frontend/src/components/company/CompanyList.tsx`
+- Features:
+  - Table view of companies
+  - Columns: Business Name, Trade Name, Business Type, VAT Number, Municipality
+  - Actions: Edit, Delete
+  - Loading state
+  - Error handling
+  - Delete confirmation
+  - Add New Company button
+- Styling: Tailwind CSS
+
+#### CompanyForm
+- Location: `frontend/src/components/company/CompanyForm.tsx`
+- Features:
+  - Create/Edit mode
+  - Form validation
+  - All company fields
+  - Loading state
+  - Error handling
+  - Cancel/Save actions
+  - Responsive grid layout
+- Input types:
+  - text for general fields
+  - email for email
+  - tel for phone
+  - date for registration date
+  - select for business type
+- Styling: Tailwind CSS
+
+## Data Flow
+1. User interacts with CompanyList/CompanyForm
+2. Frontend service makes API call
+3. Backend controller receives request
+4. Service layer processes the request
+5. TypeORM handles database operations
+6. Response flows back through the layers
+
+## Validation Rules
+- All identification numbers must be unique
+- All required fields must be provided
+- Email must be valid format
+- Registration date must be valid date string
+- Business type must be one of the enum values
+
+## Error Handling
+- Backend: NotFoundException for missing resources
+- Frontend: Error messages for failed operations
+- Loading states for async operations
+- User-friendly error messages
+
+## UI/UX Guidelines
+- Responsive design
+- Clear error messages
+- Loading indicators
+- Confirmation for destructive actions
+- Form validation feedback
+- Clear navigation
+- Modern styling with Tailwind CSS
