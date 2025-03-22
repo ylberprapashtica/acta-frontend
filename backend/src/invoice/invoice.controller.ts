@@ -17,6 +17,7 @@ export class InvoiceController {
       quantity: number;
       unitPrice?: number;
     }>;
+    issueDate?: Date;
   }) {
     return this.invoiceService.createInvoice(data);
   }

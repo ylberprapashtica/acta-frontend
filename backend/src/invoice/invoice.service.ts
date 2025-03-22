@@ -31,6 +31,7 @@ export class InvoiceService {
       quantity: number;
       unitPrice?: number;
     }>;
+    issueDate?: Date;
   }) {
     const issuer = await this.companyRepository.findOne({ where: { id: data.issuerId } });
     const recipient = await this.companyRepository.findOne({ where: { id: data.recipientId } });
@@ -61,12 +62,14 @@ export class InvoiceService {
     const totalAmount = invoiceItems.reduce((sum, item) => sum + item.totalPrice, 0);
     const totalVat = invoiceItems.reduce((sum, item) => sum + item.vatAmount, 0);
 
+    const issueDate = data.issueDate || new Date();
+    
     // Create and save invoice with totals
     const invoice = this.invoiceRepository.create({
       issuer,
       recipient,
-      issueDate: new Date(),
-      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      issueDate,
+      dueDate: new Date(issueDate.getTime() + 30 * 24 * 60 * 60 * 1000), // 30 days from issue date
       invoiceNumber: `INV-${Date.now()}`,
       totalAmount,
       totalVat,

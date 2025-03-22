@@ -20,6 +20,7 @@ export interface CreateInvoiceData {
     quantity: number;
     unitPrice?: number;
   }>;
+  issueDate?: Date;
 }
 
 class InvoiceService {

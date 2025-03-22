@@ -90,6 +90,10 @@ async function bootstrap() {
         issuerId: issuer.id,
         recipientId: recipient.id,
         items,
+        issueDate: faker.date.between({ 
+          from: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000), 
+          to: new Date() 
+        }),
       });
     }
     console.log(`Created 100 invoices for company ${issuer.businessName}`);
