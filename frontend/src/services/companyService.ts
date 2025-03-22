@@ -1,32 +1,70 @@
-import axios from 'axios';
-import { Company, CreateCompanyDto } from '../types/company';
-import api from './api';
+import { Company } from '../types/company';
 
-const API_URL = '/companies';
+const API_URL = import.meta.env.VITE_API_URL;
 
-export const companyService = {
-  async getAll(): Promise<Company[]> {
-    const response = await api.get<Company[]>(API_URL);
-    console.log('API Response:', response.data);
-    return response.data;
-  },
+interface PaginatedResponse<T> {
+  items: T[];
+  meta: {
+    total: number;
+    page: number;
+    lastPage: number;
+    limit: number;
+  };
+}
 
-  async getById(id: string): Promise<Company> {
-    const response = await api.get<Company>(`${API_URL}/${id}`);
-    return response.data;
-  },
+class CompanyService {
+  async getAll(page: number = 1, limit: number = 100): Promise<PaginatedResponse<Company>> {
+    const response = await fetch(`${API_URL}/companies?page=${page}&limit=${limit}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch companies');
+    }
+    return response.json();
+  }
 
-  async create(company: CreateCompanyDto): Promise<Company> {
-    const response = await api.post<Company>(API_URL, company);
-    return response.data;
-  },
+  async getOne(id: string): Promise<Company> {
+    const response = await fetch(`${API_URL}/companies/${id}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch company');
+    }
+    return response.json();
+  }
 
-  async update(id: string, company: Partial<CreateCompanyDto>): Promise<Company> {
-    const response = await api.patch<Company>(`${API_URL}/${id}`, company);
-    return response.data;
-  },
+  async create(company: Omit<Company, 'id'>): Promise<Company> {
+    const response = await fetch(`${API_URL}/companies`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(company),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create company');
+    }
+    return response.json();
+  }
+
+  async update(id: string, company: Partial<Company>): Promise<Company> {
+    const response = await fetch(`${API_URL}/companies/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(company),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update company');
+    }
+    return response.json();
+  }
 
   async delete(id: string): Promise<void> {
-    await api.delete(`${API_URL}/${id}`);
-  },
-}; 
+    const response = await fetch(`${API_URL}/companies/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete company');
+    }
+  }
+}
+
+export const companyService = new CompanyService(); 

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Invoice, invoiceService, CreateInvoiceData } from '../services/invoice.service';
+import { Invoice } from '../types/invoice';
+import { CreateInvoiceData, invoiceService, PaginatedResponse } from '../services/invoice.service';
 import { Company, companyService } from '../services/company.service';
-import { Article, articleService } from '../services/article.service';
+import { Article } from '../types/article';
+import { articleService } from '../services/article.service';
 import { InvoiceList } from '../components/InvoiceList';
 import { InvoiceDetail } from '../components/InvoiceDetail';
 import { CreateInvoiceForm } from '../components/CreateInvoiceForm';
@@ -15,44 +17,41 @@ export const InvoicesPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const [companiesData, articlesData] = await Promise.all([
-          companyService.getCompanies(),
-          articleService.getArticles(),
-        ]);
-
-        setCompanies(companiesData);
-        setArticles(articlesData);
-
-        // Get invoices for all companies
-        const invoicesPromises = companiesData.map((company: Company) => 
-          invoiceService.getInvoicesByCompany(company.id)
-        );
-        const allInvoicesArrays = await Promise.all(invoicesPromises);
-        const allInvoices = allInvoicesArrays.flat();
-        setInvoices(allInvoices);
-      } catch (err) {
-        console.error('Error loading data:', err);
-        setError('Failed to load data. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadData();
-  }, []);
+  }, [currentPage]);
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const [companiesData, articlesData, invoicesData] = await Promise.all([
+        companyService.getCompanies(),
+        articleService.getArticles(),
+        invoiceService.getInvoices(currentPage)
+      ]) as [PaginatedResponse<Company>, PaginatedResponse<Article>, PaginatedResponse<Invoice>];
+
+      setCompanies(companiesData.items);
+      setArticles(articlesData.items);
+      setInvoices(invoicesData.items);
+      setTotalPages(invoicesData.meta.lastPage);
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError('Failed to load data. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCreateInvoice = async (data: CreateInvoiceData) => {
     try {
       const newInvoice = await invoiceService.createInvoice(data);
-      setInvoices([...invoices, newInvoice]);
+      await loadData(); // Reload the data to get the updated list with proper pagination
       setShowCreateForm(false);
       navigate(`/invoices/${newInvoice.id}`);
     } catch (error) {
@@ -89,7 +88,7 @@ export const InvoicesPage: React.FC = () => {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Invoices</h1>
               <p className="mt-1 text-sm text-secondary">
-                Manage your invoices and create new ones
+                Manage your invoices
               </p>
             </div>
             <button
@@ -138,6 +137,9 @@ export const InvoicesPage: React.FC = () => {
           <InvoiceList
             invoices={invoices}
             onInvoiceClick={handleInvoiceClick}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
           />
         )}
       </div>

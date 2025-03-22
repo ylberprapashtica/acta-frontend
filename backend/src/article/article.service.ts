@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Article } from '../entities/article.entity';
+import { PaginationDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class ArticleService {
@@ -15,8 +16,30 @@ export class ArticleService {
     return await this.articleRepository.save(article);
   }
 
-  async findAll(): Promise<Article[]> {
-    return await this.articleRepository.find();
+  async findAll(paginationDto?: PaginationDto): Promise<PaginatedResponse<Article>> {
+    const page = paginationDto?.page || 1;
+    const limit = paginationDto?.limit || 100;
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await this.articleRepository.findAndCount({
+      skip,
+      take: limit,
+      order: {
+        name: 'ASC',
+      },
+    });
+
+    const lastPage = Math.ceil(total / limit);
+
+    return {
+      items,
+      meta: {
+        total,
+        page,
+        lastPage,
+        limit,
+      },
+    };
   }
 
   async findOne(id: number): Promise<Article> {
@@ -33,6 +56,9 @@ export class ArticleService {
   }
 
   async remove(id: number): Promise<void> {
-    await this.articleRepository.delete(id);
+    const result = await this.articleRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Article with ID ${id} not found`);
+    }
   }
 } 

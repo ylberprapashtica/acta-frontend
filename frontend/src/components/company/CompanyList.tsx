@@ -4,21 +4,34 @@ import { Company } from '../../types/company';
 import { companyService } from '../../services/companyService';
 import { DataList } from '../common/DataList';
 
+interface PaginatedResponse<T> {
+  items: T[];
+  meta: {
+    total: number;
+    page: number;
+    lastPage: number;
+    limit: number;
+  };
+}
+
 export const CompanyList: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    loadCompanies();
-  }, []);
+    loadCompanies(currentPage);
+  }, [currentPage]);
 
-  const loadCompanies = async () => {
+  const loadCompanies = async (page: number) => {
     try {
       setLoading(true);
-      const data = await companyService.getAll();
-      const companiesArray = Array.isArray(data) ? data : [];
-      setCompanies(companiesArray);
+      const response = await companyService.getAll(page);
+      const data = response as PaginatedResponse<Company>;
+      setCompanies(data.items);
+      setTotalPages(data.meta.lastPage);
       setError(null);
     } catch (err) {
       setError('Failed to load companies');
@@ -36,7 +49,7 @@ export const CompanyList: React.FC = () => {
 
     try {
       await companyService.delete(id);
-      setCompanies(companies.filter(company => company.id !== id));
+      await loadCompanies(currentPage);
     } catch (err) {
       setError('Failed to delete company');
       console.error(err);
@@ -101,20 +114,24 @@ export const CompanyList: React.FC = () => {
         </Link>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6">Companies</h2>
-      {companies.length === 0 ? (
-        <div className="text-center py-4">
-          <p className="text-gray-600">No companies found. Add your first company to get started.</p>
-        </div>
-      ) : (
-        <DataList
-          data={companies}
-          columns={columns}
-          actions={actions}
-        />
-      )}
-        </div>
+      <div className="bg-white shadow rounded-lg">
+        {companies.length === 0 ? (
+          <div className="text-center py-4">
+            <p className="text-gray-600">No companies found. Add your first company to get started.</p>
+          </div>
+        ) : (
+          <DataList
+            data={companies}
+            columns={columns}
+            actions={actions}
+            pagination={{
+              currentPage,
+              totalPages,
+              onPageChange: setCurrentPage,
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }; 

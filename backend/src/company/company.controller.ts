@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { Company } from './entities/company.entity';
+import { PaginationDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Controller('companies')
 export class CompanyController {
@@ -13,8 +14,8 @@ export class CompanyController {
   }
 
   @Get()
-  findAll(): Promise<Company[]> {
-    return this.companyService.findAll();
+  findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResponse<Company>> {
+    return this.companyService.findAll(paginationDto);
   }
 
   @Get(':id')

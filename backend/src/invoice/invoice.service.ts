@@ -5,6 +5,7 @@ import { Invoice } from '../entities/invoice.entity';
 import { InvoiceItem } from '../entities/invoice-item.entity';
 import { Article } from '../entities/article.entity';
 import { Company } from '../company/entities/company.entity';
+import { PaginationDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 // Use require for PDFKit
 const PDFDocument = require('pdfkit');
@@ -75,6 +76,33 @@ export class InvoiceService {
     return this.invoiceRepository.save(invoice);
   }
 
+  async getInvoices(paginationDto?: PaginationDto): Promise<PaginatedResponse<Invoice>> {
+    const page = paginationDto?.page || 1;
+    const limit = paginationDto?.limit || 100;
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await this.invoiceRepository.findAndCount({
+      skip,
+      take: limit,
+      relations: ['issuer', 'recipient', 'items', 'items.article'],
+      order: {
+        issueDate: 'DESC',
+      },
+    });
+
+    const lastPage = Math.ceil(total / limit);
+
+    return {
+      items,
+      meta: {
+        total,
+        page,
+        lastPage,
+        limit,
+      },
+    };
+  }
+
   async getInvoice(id: number) {
     const invoice = await this.invoiceRepository.findOne({
       where: { id },
@@ -88,14 +116,35 @@ export class InvoiceService {
     return invoice;
   }
 
-  async getInvoicesByCompany(companyId: string) {
-    return this.invoiceRepository.find({
+  async getInvoicesByCompany(companyId: string, paginationDto?: PaginationDto): Promise<PaginatedResponse<Invoice>> {
+    const page = paginationDto?.page || 1;
+    const limit = paginationDto?.limit || 100;
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await this.invoiceRepository.findAndCount({
       where: [
         { issuer: { id: companyId } },
         { recipient: { id: companyId } },
       ],
       relations: ['issuer', 'recipient', 'items', 'items.article'],
+      skip,
+      take: limit,
+      order: {
+        issueDate: 'DESC',
+      },
     });
+
+    const lastPage = Math.ceil(total / limit);
+
+    return {
+      items,
+      meta: {
+        total,
+        page,
+        lastPage,
+        limit,
+      },
+    };
   }
 
   async generatePdf(id: number): Promise<Buffer> {

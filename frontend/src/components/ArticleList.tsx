@@ -11,20 +11,23 @@ export function ArticleList({ onEdit }: ArticleListProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    loadArticles();
-  }, []);
+    loadArticles(currentPage);
+  }, [currentPage]);
 
-  const loadArticles = async () => {
+  const loadArticles = async (page: number) => {
     try {
       setLoading(true);
-      const data = await articleService.getArticles();
-      const articlesWithNumberPrices = data.map((article: Article) => ({
+      const data = await articleService.getArticles(page);
+      const articlesWithNumberPrices = data.items.map((article: Article) => ({
         ...article,
         basePrice: Number(article.basePrice)
       }));
       setArticles(articlesWithNumberPrices);
+      setTotalPages(data.meta.lastPage);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load articles');
@@ -40,7 +43,7 @@ export function ArticleList({ onEdit }: ArticleListProps) {
 
     try {
       await articleService.deleteArticle(id);
-      setArticles(articles.filter(article => article.id !== id));
+      await loadArticles(currentPage); // Reload the current page after deletion
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete article');
     }
@@ -98,6 +101,11 @@ export function ArticleList({ onEdit }: ArticleListProps) {
         data={articles}
         columns={columns}
         actions={actions}
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: setCurrentPage,
+        }}
       />
     </div>
   );
