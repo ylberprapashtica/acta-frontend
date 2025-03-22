@@ -28,31 +28,52 @@ export function ArticlePage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Articles</h1>
-        <button
-          onClick={handleCreateClick}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
-        >
-          Create New Article
-        </button>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="bg-background-paper shadow-card rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Articles</h1>
+              <p className="mt-1 text-sm text-secondary">
+                Manage your products and services
+              </p>
+            </div>
+            <button
+              onClick={handleCreateClick}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Add New Article
+            </button>
+          </div>
+        </div>
       </div>
 
-      {showForm ? (
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <h2 className="text-xl font-semibold mb-4">
-            {editingArticle ? 'Edit Article' : 'Create New Article'}
-          </h2>
-          <ArticleForm
-            article={editingArticle}
-            onSuccess={handleFormSuccess}
-            onCancel={handleFormCancel}
-          />
-        </div>
-      ) : (
-        <ArticleList onEdit={handleEditClick} />
-      )}
+      {/* Main Content */}
+      <div className="bg-background-paper shadow-card rounded-lg overflow-hidden">
+        {showForm ? (
+          <div className="px-6 py-4">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {editingArticle ? 'Edit Article' : 'Create New Article'}
+              </h2>
+              <button
+                onClick={handleFormCancel}
+                className="text-secondary hover:text-secondary-dark"
+              >
+                Cancel
+              </button>
+            </div>
+            <ArticleForm
+              article={editingArticle}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          </div>
+        ) : (
+          <ArticleList onEdit={handleEditClick} />
+        )}
+      </div>
     </div>
   );
 } 

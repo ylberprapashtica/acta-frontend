@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Res } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
+import { Response } from 'express';
 
 @Controller('invoices')
 export class InvoiceController {
@@ -26,5 +27,15 @@ export class InvoiceController {
   @Get('company/:companyId')
   getInvoicesByCompany(@Param('companyId') companyId: string) {
     return this.invoiceService.getInvoicesByCompany(companyId);
+  }
+
+  @Get(':id/pdf')
+  async downloadPdf(@Param('id') id: string, @Res() res: Response) {
+    const buffer = await this.invoiceService.generatePdf(+id);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="invoice-${id}.pdf"`,
+    });
+    res.send(buffer);
   }
 } 

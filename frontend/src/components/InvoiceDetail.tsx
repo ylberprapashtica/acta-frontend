@@ -7,99 +7,111 @@ interface InvoiceDetailProps {
 
 export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoice }) => {
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-      <div className="px-4 py-5 sm:px-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900">
-          Invoice Details
-        </h3>
-        <p className="mt-1 max-w-2xl text-sm text-gray-500">
-          Invoice #{invoice.invoiceNumber}
-        </p>
+    <div className="bg-background-paper shadow-card rounded-lg overflow-hidden">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Invoice Details
+            </h3>
+            <p className="mt-1 text-sm text-secondary">
+              Invoice #{invoice.invoiceNumber}
+            </p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => window.open(`${import.meta.env.VITE_API_URL}/invoices/${invoice.id}/pdf`, '_blank')}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Download PDF
+            </button>
+            <div className="text-right">
+              <p className="text-sm text-secondary">Issue Date</p>
+              <p className="text-base font-medium text-gray-900">
+                {new Date(invoice.issueDate).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="border-t border-gray-200">
-        <dl>
-          <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-            <dt className="text-sm font-medium text-gray-500">Issue Date</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {new Date(invoice.issueDate).toLocaleDateString()}
-            </dd>
+
+      {/* Company Information */}
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="grid grid-cols-2 gap-8">
+          <div>
+            <h4 className="text-sm font-medium text-secondary mb-2">Issuer</h4>
+            <p className="text-base text-gray-900">{invoice.issuer.businessName}</p>
+            <p className="text-sm text-secondary">{invoice.issuer.address}</p>
           </div>
-          <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-            <dt className="text-sm font-medium text-gray-500">Due Date</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {new Date(invoice.dueDate).toLocaleDateString()}
-            </dd>
+          <div>
+            <h4 className="text-sm font-medium text-secondary mb-2">Recipient</h4>
+            <p className="text-base text-gray-900">{invoice.recipient.businessName}</p>
+            <p className="text-sm text-secondary">{invoice.recipient.address}</p>
           </div>
-          <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-            <dt className="text-sm font-medium text-gray-500">Issuer</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {invoice.issuer.businessName}
-            </dd>
-          </div>
-          <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-            <dt className="text-sm font-medium text-gray-500">Recipient</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {invoice.recipient.businessName}
-            </dd>
-          </div>
-        </dl>
+        </div>
       </div>
-      <div className="px-4 py-5 sm:px-6">
-        <h4 className="text-lg leading-6 font-medium text-gray-900">Items</h4>
-      </div>
-      <div className="border-t border-gray-200">
+
+      {/* Items Table */}
+      <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-secondary uppercase tracking-wider">
                 Article
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
                 Quantity
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
                 Unit Price
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
                 Total Price
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
                 VAT
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {invoice.items.map((item) => (
-              <tr key={item.id}>
+              <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {item.article.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
                   {item.quantity}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${Number(item.unitPrice).toFixed(2)}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                  €{Number(item.unitPrice).toFixed(2)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${Number(item.totalPrice).toFixed(2)}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                  €{Number(item.totalPrice).toFixed(2)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${Number(item.vatAmount).toFixed(2)}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                  €{Number(item.vatAmount).toFixed(2)}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="bg-gray-50 px-4 py-5 sm:px-6">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <dt className="text-sm font-medium text-gray-500">Total Amount</dt>
-            <dd className="mt-1 text-sm text-gray-900">${Number(invoice.totalAmount).toFixed(2)}</dd>
+
+      {/* Totals */}
+      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <div className="flex justify-end space-x-8">
+          <div className="text-right">
+            <p className="text-sm text-secondary">Total Amount</p>
+            <p className="text-lg font-semibold text-gray-900">
+              €{Number(invoice.totalAmount).toFixed(2)}
+            </p>
           </div>
-          <div>
-            <dt className="text-sm font-medium text-gray-500">Total VAT</dt>
-            <dd className="mt-1 text-sm text-gray-900">${Number(invoice.totalVat).toFixed(2)}</dd>
+          <div className="text-right">
+            <p className="text-sm text-secondary">Total VAT</p>
+            <p className="text-lg font-semibold text-gray-900">
+              €{Number(invoice.totalVat).toFixed(2)}
+            </p>
           </div>
         </div>
       </div>

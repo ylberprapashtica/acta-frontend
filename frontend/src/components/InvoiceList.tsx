@@ -1,5 +1,6 @@
 import React from 'react';
 import { Invoice } from '../services/invoice.service';
+import { DataList } from './common/DataList';
 
 interface InvoiceListProps {
   invoices: Invoice[];
@@ -7,54 +8,54 @@ interface InvoiceListProps {
 }
 
 export const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onInvoiceClick }) => {
+  const columns = [
+    {
+      header: 'Invoice Number',
+      accessor: (invoice: Invoice) => `#${invoice.invoiceNumber}`,
+    },
+    {
+      header: 'Issue Date',
+      accessor: (invoice: Invoice) => new Date(invoice.issueDate).toLocaleDateString(),
+    },
+    {
+      header: 'Recipient',
+      accessor: (invoice: Invoice) => invoice.recipient.businessName,
+    },
+    {
+      header: 'Total Amount',
+      accessor: (invoice: Invoice) => `€${Number(invoice.totalAmount).toFixed(2)}`,
+      align: 'right' as const,
+    },
+  ];
+
+  const actions = [
+    {
+      label: 'View Details',
+      onClick: (invoice: Invoice) => onInvoiceClick(invoice),
+      variant: 'primary' as const,
+    },
+    {
+      label: 'Download PDF',
+      onClick: (invoice: Invoice) => {
+        window.open(`${import.meta.env.VITE_API_URL}/invoices/${invoice.id}/pdf`, '_blank');
+      },
+      variant: 'secondary' as const,
+    },
+  ];
+
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Invoice Number
-            </th>
-            <th className="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Issue Date
-            </th>
-            <th className="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Due Date
-            </th>
-            <th className="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Recipient
-            </th>
-            <th className="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Total Amount
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {invoices.map((invoice) => (
-            <tr
-              key={invoice.id}
-              onClick={() => onInvoiceClick(invoice)}
-              className="hover:bg-gray-50 cursor-pointer"
-            >
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {invoice.invoiceNumber}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {new Date(invoice.issueDate).toLocaleDateString()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {new Date(invoice.dueDate).toLocaleDateString()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {invoice.recipient.businessName}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${Number(invoice.totalAmount).toFixed(2)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="bg-background-paper shadow-card rounded-lg overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-900">Invoices</h2>
+        </div>
+      </div>
+      <DataList
+        data={invoices}
+        columns={columns}
+        actions={actions}
+        onRowClick={onInvoiceClick}
+      />
     </div>
   );
 }; 

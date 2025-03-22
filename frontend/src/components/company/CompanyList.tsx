@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Company } from '../../types/company';
 import { companyService } from '../../services/companyService';
+import { DataList } from '../common/DataList';
 
 export const CompanyList: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -16,7 +17,6 @@ export const CompanyList: React.FC = () => {
     try {
       setLoading(true);
       const data = await companyService.getAll();
-      // Ensure data is an array
       const companiesArray = Array.isArray(data) ? data : [];
       setCompanies(companiesArray);
       setError(null);
@@ -43,18 +43,56 @@ export const CompanyList: React.FC = () => {
     }
   };
 
+  const columns = [
+    {
+      header: 'Business Name',
+      accessor: 'businessName' as const,
+    },
+    {
+      header: 'Identification Number',
+      accessor: 'uniqueIdentificationNumber' as const,
+    },
+    {
+      header: 'Business Type',
+      accessor: 'businessType' as const,
+    },
+    {
+      header: 'Phone Number',
+      accessor: 'phoneNumber' as const,
+    },
+    {
+      header: 'Email',
+      accessor: 'email' as const,
+    },
+  ];
+
+  const actions = [
+    {
+      label: 'Edit',
+      onClick: (company: Company) => {
+        window.location.href = `/companies/${company.id}/edit`;
+      },
+      variant: 'primary' as const,
+    },
+    {
+      label: 'Delete',
+      onClick: (company: Company) => handleDelete(company.id),
+      variant: 'danger' as const,
+    },
+  ];
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-gray-600">Loading...</p>
-      </div>
-    );
+    return <div className="text-center py-4">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center py-4">{error}</div>;
   }
 
   return (
-    <div className="container mx-auto py-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Companies</h1>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Companies</h2>
         <Link
           to="/companies/new"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -63,90 +101,20 @@ export const CompanyList: React.FC = () => {
         </Link>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {companies.length === 0 && !error ? (
-        <div className="flex items-center justify-center py-8">
+      <div className="container mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold mb-6">Companies</h2>
+      {companies.length === 0 ? (
+        <div className="text-center py-4">
           <p className="text-gray-600">No companies found. Add your first company to get started.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Business Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Unique Identification Number
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Business Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Phone Number
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {companies.map((company) => (
-                <tr key={company.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {company.businessName}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {company.uniqueIdentificationNumber}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {company.businessType}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {company.phoneNumber}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {company.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                    <div className="flex justify-center space-x-2">
-                      <Link
-                        to={`/companies/${company.id}/edit`}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(company.id)}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataList
+          data={companies}
+          columns={columns}
+          actions={actions}
+        />
       )}
+        </div>
     </div>
   );
 }; 

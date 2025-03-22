@@ -1,202 +1,210 @@
 import React, { useState } from 'react';
-import { CreateInvoiceData, InvoiceItem } from '../services/invoice.service';
 import { Company } from '../services/company.service';
 import { Article } from '../services/article.service';
+import { CreateInvoiceData } from '../services/invoice.service';
 
 interface CreateInvoiceFormProps {
-  onSubmit: (data: CreateInvoiceData) => void;
   companies: Company[];
   articles: Article[];
+  onSubmit: (data: CreateInvoiceData) => void;
+}
+
+interface InvoiceItemInput {
+  articleId: number;
+  quantity: number;
+  unitPrice: number;
 }
 
 export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({
-  onSubmit,
   companies,
   articles,
+  onSubmit,
 }) => {
-  const [issuerId, setIssuerId] = useState<string>('');
-  const [recipientId, setRecipientId] = useState<string>('');
-  const [items, setItems] = useState<InvoiceItem[]>([]);
+  const [issuerId, setIssuerId] = useState('');
+  const [recipientId, setRecipientId] = useState('');
+  const [items, setItems] = useState<InvoiceItemInput[]>([]);
 
   const handleAddItem = () => {
     setItems([...items, { articleId: 0, quantity: 1, unitPrice: 0 }]);
-  };
-
-  const handleItemChange = (index: number, field: keyof InvoiceItem, value: number) => {
-    const newItems = [...items];
-    newItems[index] = { ...newItems[index], [field]: value };
-    setItems(newItems);
-  };
-
-  const handleArticleSelect = (index: number, articleId: number) => {
-    const selectedArticle = articles.find(article => article.id === articleId);
-    if (selectedArticle) {
-      const newItems = [...items];
-      newItems[index] = {
-        ...newItems[index],
-        articleId,
-        unitPrice: selectedArticle.basePrice,
-        quantity: Math.max(1, newItems[index].quantity)
-      };
-      setItems(newItems);
-    }
   };
 
   const handleRemoveItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
   };
 
-  const calculateTotal = () => {
-    return items.reduce((total, item) => {
-      if (item.articleId && item.quantity >= 1 && item.unitPrice) {
-        return total + (item.quantity * item.unitPrice);
-      }
-      return total;
-    }, 0);
+  const handleItemChange = (
+    index: number,
+    field: keyof InvoiceItemInput,
+    value: number,
+  ) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setItems(newItems);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!issuerId || !recipientId || items.length === 0) {
-      return;
-    }
-
-    // Validate that all items have quantity >= 1
-    const invalidItems = items.some(item => item.quantity < 1);
-    if (invalidItems) {
-      alert('All items must have a quantity of at least 1');
-      return;
-    }
-
-    // Filter out invalid items and ensure unitPrice is included
-    const validItems = items
-      .filter(item => item.articleId && item.quantity >= 1)
-      .map(item => ({
-        articleId: item.articleId,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice || 0
-      }));
-
     onSubmit({
       issuerId,
       recipientId,
-      items: validItems
+      items: items.map(item => ({
+        articleId: item.articleId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
     });
   };
 
-  const currentDate = new Date().toLocaleDateString();
+  const calculateTotal = () => {
+    return items.reduce((total, item) => {
+      const article = articles.find((a) => a.id === item.articleId);
+      if (!article) return total;
+      return total + item.quantity * item.unitPrice;
+    }, 0);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Create Invoice</h2>
-        <div className="text-sm text-gray-500">
-          Date: {currentDate}
+      <div className="bg-background-paper shadow-card rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">Create New Invoice</h2>
         </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Issuer</label>
-        <select
-          value={issuerId}
-          onChange={(e) => setIssuerId(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        >
-          <option value="">Select a company</option>
-          {companies.map((company) => (
-            <option key={company.id} value={company.id}>
-              {company.businessName}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Recipient</label>
-        <select
-          value={recipientId}
-          onChange={(e) => setRecipientId(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        >
-          <option value="">Select a company</option>
-          {companies.map((company) => (
-            <option key={company.id} value={company.id}>
-              {company.businessName}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-medium text-gray-900">Items</h3>
-          <button
-            type="button"
-            onClick={handleAddItem}
-            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Add Item
-          </button>
-        </div>
-
-        <div className="mt-4 space-y-4">
-          {items.map((item, index) => (
-            <div key={index} className="flex items-center space-x-4">
+        <div className="px-6 py-4 space-y-6">
+          {/* Company Selection */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <label htmlFor="issuerId" className="block text-sm font-medium text-secondary">
+                Issuer
+              </label>
               <select
-                value={item.articleId}
-                onChange={(e) => handleArticleSelect(index, Number(e.target.value))}
-                className="block w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                id="issuerId"
+                value={issuerId}
+                onChange={(e) => setIssuerId(e.target.value)}
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                required
               >
-                <option value="">Select an article</option>
-                {articles.map((article) => (
-                  <option key={article.id} value={article.id}>
-                    {article.name} (${article.basePrice})
+                <option value="">Select a company</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.businessName}
                   </option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label htmlFor="recipientId" className="block text-sm font-medium text-secondary">
+                Recipient
+              </label>
+              <select
+                id="recipientId"
+                value={recipientId}
+                onChange={(e) => setRecipientId(e.target.value)}
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                required
+              >
+                <option value="">Select a company</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.businessName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-              <input
-                type="number"
-                min="1"
-                value={item.quantity}
-                onChange={(e) => handleItemChange(index, 'quantity', Math.max(1, Number(e.target.value)))}
-                placeholder="Quantity"
-                className="block w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-
-              <input
-                type="number"
-                value={item.unitPrice || ''}
-                onChange={(e) => handleItemChange(index, 'unitPrice', Number(e.target.value))}
-                placeholder="Unit Price (editable)"
-                className="block w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-
+          {/* Items */}
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base font-medium text-gray-900">Items</h3>
               <button
                 type="button"
-                onClick={() => handleRemoveItem(index)}
-                className="inline-flex items-center p-1 border border-transparent rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                onClick={handleAddItem}
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                Remove
+                Add Item
               </button>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="space-y-4">
+              {items.map((item, index) => (
+                <div key={index} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-secondary mb-1">
+                      Article
+                    </label>
+                    <select
+                      value={item.articleId}
+                      onChange={(e) => handleItemChange(index, 'articleId', Number(e.target.value))}
+                      className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                      required
+                    >
+                      <option value="0">Select an article</option>
+                      {articles.map((article) => (
+                        <option key={article.id} value={article.id}>
+                          {article.name} - ${article.basePrice}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="w-32">
+                    <label className="block text-sm font-medium text-secondary mb-1">
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleItemChange(index, 'quantity', parseInt(e.target.value))
+                      }
+                      className="block w-full pl-3 pr-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                      required
+                    />
+                  </div>
+                  <div className="w-32">
+                    <label className="block text-sm font-medium text-secondary mb-1">
+                      Unit Price
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.unitPrice}
+                      onChange={(e) =>
+                        handleItemChange(index, 'unitPrice', parseFloat(e.target.value))
+                      }
+                      className="block w-full pl-3 pr-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem(index)}
+                    className="mt-6 inline-flex items-center p-2 border border-transparent rounded-md text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <div className="border-t pt-4">
-        <div className="flex justify-between items-center">
-          <div className="text-lg font-medium text-gray-900">Total Amount:</div>
-          <div className="text-2xl font-bold text-indigo-600">
-            ${calculateTotal().toFixed(2)}
+          {/* Total */}
+          <div className="flex justify-end">
+            <div className="text-right">
+              <p className="text-sm text-secondary">Total Amount</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                €{calculateTotal().toFixed(2)}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div>
+      {/* Submit Button */}
+      <div className="flex justify-end">
         <button
           type="submit"
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
           Create Invoice
         </button>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Invoice, invoiceService, CreateInvoiceData } from '../services/invoice.service';
 import { Company, companyService } from '../services/company.service';
 import { Article, articleService } from '../services/article.service';
@@ -14,6 +15,7 @@ export const InvoicesPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadData = async () => {
@@ -52,9 +54,14 @@ export const InvoicesPage: React.FC = () => {
       const newInvoice = await invoiceService.createInvoice(data);
       setInvoices([...invoices, newInvoice]);
       setShowCreateForm(false);
+      navigate(`/invoices/${newInvoice.id}`);
     } catch (error) {
       console.error('Error creating invoice:', error);
     }
+  };
+
+  const handleInvoiceClick = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
   };
 
   if (isLoading) {
@@ -74,52 +81,66 @@ export const InvoicesPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Invoices</h1>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Create Invoice
-        </button>
-      </div>
-
-      {showCreateForm ? (
-        <div className="bg-white p-6 rounded-lg shadow mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Create New Invoice</h2>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="bg-background-paper shadow-card rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Invoices</h1>
+              <p className="mt-1 text-sm text-secondary">
+                Manage your invoices and create new ones
+              </p>
+            </div>
             <button
-              onClick={() => setShowCreateForm(false)}
-              className="text-gray-500 hover:text-gray-700"
+              onClick={() => setShowCreateForm(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             >
-              Cancel
+              Create New Invoice
             </button>
           </div>
-          <CreateInvoiceForm
-            onSubmit={handleCreateInvoice}
-            companies={companies}
-            articles={articles}
-          />
         </div>
-      ) : selectedInvoice ? (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <button
-            onClick={() => setSelectedInvoice(null)}
-            className="mb-4 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Back to List
-          </button>
-          <InvoiceDetail invoice={selectedInvoice} />
-        </div>
-      ) : (
-        <div className="bg-white p-6 rounded-lg shadow">
+      </div>
+
+      {/* Main Content */}
+      <div className="bg-background-paper shadow-card rounded-lg overflow-hidden">
+        {showCreateForm ? (
+          <div className="px-6 py-4">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Create New Invoice</h2>
+              <button
+                onClick={() => setShowCreateForm(false)}
+                className="text-secondary hover:text-secondary-dark"
+              >
+                Cancel
+              </button>
+            </div>
+            <CreateInvoiceForm
+              companies={companies}
+              articles={articles}
+              onSubmit={handleCreateInvoice}
+            />
+          </div>
+        ) : selectedInvoice ? (
+          <div className="px-6 py-4">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Invoice Details</h2>
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="text-secondary hover:text-secondary-dark"
+              >
+                Back to List
+              </button>
+            </div>
+            <InvoiceDetail invoice={selectedInvoice} />
+          </div>
+        ) : (
           <InvoiceList
             invoices={invoices}
-            onInvoiceClick={setSelectedInvoice}
+            onInvoiceClick={handleInvoiceClick}
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }; 
