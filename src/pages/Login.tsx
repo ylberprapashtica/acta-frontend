@@ -18,7 +18,7 @@ export default function Login() {
 
     try {
       await authService.login(credentials);
-      navigate('/dashboard');
+      navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'An error occurred during login');
     } finally {

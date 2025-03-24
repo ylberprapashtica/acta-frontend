@@ -6,6 +6,7 @@ import { ArticlePage } from '../pages/ArticlePage';
 import { InvoicesPage } from '../pages/InvoicesPage';
 import Login from '../pages/Login';
 import ProtectedRoute from '../components/ProtectedRoute';
+import Home from '../pages/Home';
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
+      {
+        index: true,
+        element: <Home />,
+      },
       {
         path: 'companies',
         children: [
