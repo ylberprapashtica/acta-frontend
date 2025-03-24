@@ -9,6 +9,6 @@
     "NODE_ENV": "production",
     "VITE_API_URL": "https://acta-backend-one.vercel.app"
   },
-  "buildCommand": "npm install && npm run build",
+  "buildCommand": "npm install && npx vite build",
   "installCommand": "npm install"
 } 
