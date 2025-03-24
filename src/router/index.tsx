@@ -9,6 +9,7 @@ import Logout from '../pages/Logout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import Home from '../pages/Home';
 import { AdminLayout } from '../components/layout/AdminLayout';
+import { AdminPage } from '../pages/admin/AdminPage';
 import { TenantsPage } from '../pages/admin/TenantsPage';
 import { UsersPage } from '../pages/admin/UsersPage';
 
@@ -68,6 +69,10 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
+      {
+        index: true,
+        element: <AdminPage />,
+      },
       {
         path: 'tenants',
         element: <TenantsPage />,

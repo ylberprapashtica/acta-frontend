@@ -20,7 +20,6 @@ export const BaseNavbar: React.FC<BaseNavbarProps> = ({
   easyNavigation,
   hardNavigation,
   showBackButton = false,
-  children
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,11 +27,6 @@ export const BaseNavbar: React.FC<BaseNavbarProps> = ({
 
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
-  };
-
-  const handleLogout = () => {
-    authService.logout();
-    navigate('/login');
   };
 
   return (
@@ -147,17 +141,6 @@ export const BaseNavbar: React.FC<BaseNavbarProps> = ({
           {/* Mobile menu */}
           <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden`}>
             <div className="pt-2 pb-3 space-y-1">
-              {/* Easy Navigation Items */}
-              {easyNavigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="block px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
               {/* Hard Navigation Items */}
               {hardNavigation.map((item) => (
                 <Link
@@ -169,13 +152,6 @@ export const BaseNavbar: React.FC<BaseNavbarProps> = ({
                   {item.name}
                 </Link>
               ))}
-              <Link
-                to="/logout"
-                className="block w-full text-left px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Logout
-              </Link>
             </div>
           </div>
         </div>
