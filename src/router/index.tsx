@@ -4,11 +4,21 @@ import { CompanyForm } from '../components/company/CompanyForm';
 import { Layout } from '../components/layout/Layout';
 import { ArticlePage } from '../pages/ArticlePage';
 import { InvoicesPage } from '../pages/InvoicesPage';
+import Login from '../pages/Login';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 export const router = createBrowserRouter([
   {
+    path: '/login',
+    element: <Login />,
+  },
+  {
     path: '/',
-    element: <Layout />,
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: 'companies',

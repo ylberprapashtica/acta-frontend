@@ -1,6 +1,5 @@
 import { Article } from '../types/article';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import axiosInstance from './axios';
 
 interface PaginatedResponse<T> {
   items: T[];
@@ -14,56 +13,27 @@ interface PaginatedResponse<T> {
 
 class ArticleService {
   async getArticles(page: number = 1, limit: number = 100): Promise<PaginatedResponse<Article>> {
-    const response = await fetch(`${API_URL}/articles?page=${page}&limit=${limit}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch articles');
-    }
-    return response.json();
+    const response = await axiosInstance.get(`/articles?page=${page}&limit=${limit}`);
+    return response.data;
   }
 
   async getArticle(id: number): Promise<Article> {
-    const response = await fetch(`${API_URL}/articles/${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch article');
-    }
-    return response.json();
+    const response = await axiosInstance.get(`/articles/${id}`);
+    return response.data;
   }
 
   async createArticle(article: Omit<Article, 'id'>): Promise<Article> {
-    const response = await fetch(`${API_URL}/articles`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(article),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create article');
-    }
-    return response.json();
+    const response = await axiosInstance.post('/articles', article);
+    return response.data;
   }
 
   async updateArticle(id: number, article: Partial<Article>): Promise<Article> {
-    const response = await fetch(`${API_URL}/articles/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(article),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update article');
-    }
-    return response.json();
+    const response = await axiosInstance.patch(`/articles/${id}`, article);
+    return response.data;
   }
 
   async deleteArticle(id: number): Promise<void> {
-    const response = await fetch(`${API_URL}/articles/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete article');
-    }
+    await axiosInstance.delete(`/articles/${id}`);
   }
 }
 

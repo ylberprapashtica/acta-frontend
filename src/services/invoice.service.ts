@@ -1,4 +1,5 @@
 import { Invoice } from '../types/invoice';
+import axiosInstance from './axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -25,49 +26,30 @@ export interface CreateInvoiceData {
 
 class InvoiceService {
   async getInvoices(page: number = 1, limit: number = 100): Promise<PaginatedResponse<Invoice>> {
-    const response = await fetch(`${API_URL}/invoices?page=${page}&limit=${limit}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch invoices');
-    }
-    return response.json();
+    const response = await axiosInstance.get(`/invoices?page=${page}&limit=${limit}`);
+    return response.data;
   }
 
   async getInvoice(id: number): Promise<Invoice> {
-    const response = await fetch(`${API_URL}/invoices/${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch invoice');
-    }
-    return response.json();
+    const response = await axiosInstance.get(`/invoices/${id}`);
+    return response.data;
   }
 
   async createInvoice(data: CreateInvoiceData): Promise<Invoice> {
-    const response = await fetch(`${API_URL}/invoices`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create invoice');
-    }
-    return response.json();
+    const response = await axiosInstance.post('/invoices', data);
+    return response.data;
   }
 
   async getInvoicesByCompany(companyId: string, page: number = 1, limit: number = 100): Promise<PaginatedResponse<Invoice>> {
-    const response = await fetch(`${API_URL}/invoices/company/${companyId}?page=${page}&limit=${limit}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch company invoices');
-    }
-    return response.json();
+    const response = await axiosInstance.get(`/invoices/company/${companyId}?page=${page}&limit=${limit}`);
+    return response.data;
   }
 
   async downloadPdf(id: number): Promise<Blob> {
-    const response = await fetch(`${API_URL}/invoices/${id}/pdf`);
-    if (!response.ok) {
-      throw new Error('Failed to download invoice PDF');
-    }
-    return response.blob();
+    const response = await axiosInstance.get(`/invoices/${id}/pdf`, {
+      responseType: 'blob'
+    });
+    return response.data;
   }
 }
 

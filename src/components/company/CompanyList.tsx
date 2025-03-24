@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Company } from '../../types/company';
-import { companyService } from '../../services/companyService';
+import { companyService } from '../../services/company.service';
 import { DataList } from '../common/DataList';
 
 interface PaginatedResponse<T> {
@@ -28,10 +28,9 @@ export const CompanyList: React.FC = () => {
   const loadCompanies = async (page: number) => {
     try {
       setLoading(true);
-      const response = await companyService.getAll(page);
-      const data = response as PaginatedResponse<Company>;
-      setCompanies(data.items);
-      setTotalPages(data.meta.lastPage);
+      const response = await companyService.getCompanies(page);
+      setCompanies(response.items);
+      setTotalPages(response.meta.lastPage);
       setError(null);
     } catch (err) {
       setError('Failed to load companies');
@@ -48,7 +47,7 @@ export const CompanyList: React.FC = () => {
     }
 
     try {
-      await companyService.delete(id);
+      await companyService.deleteCompany(id);
       await loadCompanies(currentPage);
     } catch (err) {
       setError('Failed to delete company');

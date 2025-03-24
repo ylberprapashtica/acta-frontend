@@ -1,17 +1,8 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL;
-
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import axiosInstance from './axios';
 
 export const getHello = async () => {
   try {
-    const response = await api.get('/');
+    const response = await axiosInstance.get('/');
     return response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -19,4 +10,4 @@ export const getHello = async () => {
   }
 };
 
-export default api; 
+export default axiosInstance; 

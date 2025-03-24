@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BusinessType, Company, CreateCompanyDto } from '../../types/company';
-import { companyService } from '../../services/companyService';
+import { companyService } from '../../services/company.service';
 
 export const CompanyForm: React.FC = () => {
   const navigate = useNavigate();
@@ -34,10 +34,21 @@ export const CompanyForm: React.FC = () => {
   const loadCompany = async () => {
     try {
       setLoading(true);
-      const company = await companyService.getById(id!);
+      const company = await companyService.getCompany(id!);
       setFormData({
-        ...company,
+        businessName: company.businessName,
+        tradeName: company.tradeName || '',
+        businessType: company.businessType,
+        uniqueIdentificationNumber: company.uniqueIdentificationNumber,
+        businessNumber: company.businessNumber || '',
+        fiscalNumber: company.fiscalNumber || '',
+        vatNumber: company.vatNumber || '',
         registrationDate: company.registrationDate.split('T')[0],
+        municipality: company.municipality,
+        address: company.address,
+        phoneNumber: company.phoneNumber,
+        email: company.email,
+        bankAccount: company.bankAccount || '',
       });
     } catch (err) {
       setError('Failed to load company');
@@ -52,9 +63,9 @@ export const CompanyForm: React.FC = () => {
     try {
       setLoading(true);
       if (id) {
-        await companyService.update(id, formData);
+        await companyService.updateCompany(id, formData);
       } else {
-        await companyService.create(formData);
+        await companyService.createCompany(formData);
       }
       navigate('/companies');
     } catch (err: any) {
