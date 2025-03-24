@@ -1,122 +1,54 @@
-# Acta
+# React + TypeScript + Vite
 
-A modern full-stack application built with NestJS and React.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Project Structure
+Currently, two official plugins are available:
 
-```
-acta/
-├── backend/         # NestJS backend application
-├── frontend/        # React frontend application
-└── docker-compose.yml  # Docker configuration
-```
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Prerequisites
+## Expanding the ESLint configuration
 
-- Node.js (v18 or higher)
-- npm or yarn
-- Git
-- Docker and Docker Compose
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-## Getting Started
-
-### Database Setup
-
-1. Start the PostgreSQL container:
-   ```bash
-   docker-compose up -d
-   ```
-
-2. Check if the container is running:
-   ```bash
-   docker ps
-   ```
-
-3. The database will be available at:
-   - Host: localhost
-   - Port: 5432
-   - User: acta_user
-   - Password: acta_password
-   - Database: acta_db
-
-### Backend Setup
-
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run start:dev
-   ```
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-## Technologies Used
-
-### Backend
-- NestJS
-- TypeScript
-- PostgreSQL
-- TypeORM
-
-### Frontend
-- React
-- TypeScript
-- Chakra UI
-- React Query
-
-## Docker Commands
-
-- Start containers:
-  ```bash
-  docker-compose up -d
-  ```
-
-- Stop containers:
-  ```bash
-  docker-compose down
-  ```
-
-- View logs:
-  ```bash
-  docker-compose logs -f
-  ```
-
-- Reset database:
-  ```bash
-  docker-compose down -v
-  docker-compose up -d
-  ```
-
-## Environment Variables
-
-Copy `.env.example` to `.env` and update the values as needed:
-```bash
-cp .env.example .env
+```js
+export default tseslint.config({
+  extends: [
+    // Remove ...tseslint.configs.recommended and replace with this
+    ...tseslint.configs.recommendedTypeChecked,
+    // Alternatively, use this for stricter rules
+    ...tseslint.configs.strictTypeChecked,
+    // Optionally, add this for stylistic rules
+    ...tseslint.configs.stylisticTypeChecked,
+  ],
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
 ```
 
-## License
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-MIT 
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default tseslint.config({
+  plugins: {
+    // Add the react-x and react-dom plugins
+    'react-x': reactX,
+    'react-dom': reactDom,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended typescript rules
+    ...reactX.configs['recommended-typescript'].rules,
+    ...reactDom.configs.recommended.rules,
+  },
+})
+```
