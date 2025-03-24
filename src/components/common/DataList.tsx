@@ -50,7 +50,8 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
 
   return (
     <div>
-      <div className="overflow-x-auto">
+      {/* Desktop View */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -107,6 +108,45 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
           </tbody>
         </table>
       </div>
+
+      {/* Mobile View */}
+      <div className="md:hidden space-y-4">
+        {data.map((item, rowIndex) => (
+          <div
+            key={rowIndex}
+            onClick={() => onRowClick?.(item)}
+            className={`bg-white rounded-lg shadow p-4 space-y-2 ${onRowClick ? 'hover:bg-gray-50 cursor-pointer' : ''}`}
+          >
+            {columns.map((column, colIndex) => (
+              <div key={colIndex} className="flex flex-col">
+                <span className="text-xs font-medium text-gray-500 uppercase">
+                  {column.header}
+                </span>
+                <span className="text-sm text-gray-900">
+                  {getCellContent(item, column)}
+                </span>
+              </div>
+            ))}
+            {actions && actions.length > 0 && (
+              <div className="pt-2 flex flex-wrap gap-2">
+                {actions.map((action, actionIndex) => (
+                  <button
+                    key={actionIndex}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      action.onClick(item);
+                    }}
+                    className={getButtonClassName(action.variant)}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
       {pagination && (
         <Pagination
           currentPage={pagination.currentPage}
