@@ -83,49 +83,6 @@ export const Layout: React.FC = () => {
             </nav>
           </div>
 
-          {/* Mobile menu */}
-          <div
-            className={`${
-              isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
-            } sm:hidden absolute top-16 left-0 right-0 bg-primary shadow-lg transform transition-all duration-300 ease-in-out z-50`}
-            id="mobile-menu"
-          >
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link
-                to="/companies"
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-150 ${
-                  isActive('/companies')
-                    ? 'bg-primary-dark text-white'
-                    : 'text-white hover:bg-primary-dark hover:text-white'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Companies
-              </Link>
-              <Link
-                to="/articles"
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-150 ${
-                  isActive('/articles')
-                    ? 'bg-primary-dark text-white'
-                    : 'text-white hover:bg-primary-dark hover:text-white'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Articles
-              </Link>
-              <Link
-                to="/invoices"
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-150 ${
-                  isActive('/invoices')
-                    ? 'bg-primary-dark text-white'
-                    : 'text-white hover:bg-primary-dark hover:text-white'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Invoices
-              </Link>
-            </div>
-          </div>
         </div>
       </header>
 
