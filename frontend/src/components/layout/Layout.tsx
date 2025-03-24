@@ -25,9 +25,9 @@ export const Layout: React.FC = () => {
               </div>
 
               {/* Navigation Links */}
-              <div className="hidden sm:flex sm:ml-6 sm:space-x-8">
+              <div className="flex ml-5 sm:flex sm:ml-8 sm:space-x-10 items-center">
                 <Link to="/companies">
-                  <span className={`text-sm font-medium py-1 px-1 border-b-2 ${
+                  <span className={`text-sm font-medium py-1 px-1 border-b-2 text-center ${
                     isActive('/companies')
                       ? 'text-blue-600 border-blue-500'
                       : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-transparent'
@@ -36,7 +36,7 @@ export const Layout: React.FC = () => {
                   </span>
                 </Link>
                 <Link to="/articles">
-                  <span className={`text-sm font-medium py-1 px-1 border-b-2 ${
+                  <span className={`text-sm font-medium py-1 px-1 border-b-2 text-center ${
                     isActive('/articles')
                       ? 'text-blue-600 border-blue-500'
                       : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-transparent'
@@ -45,7 +45,7 @@ export const Layout: React.FC = () => {
                   </span>
                 </Link>
                 <Link to="/invoices">
-                  <span className={`text-sm font-medium py-1 px-1 border-b-2 ${
+                  <span className={`text-sm font-medium py-1 px-1 border-b-2 text-center ${
                     isActive('/invoices')
                       ? 'text-blue-600 border-blue-500'
                       : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-transparent'

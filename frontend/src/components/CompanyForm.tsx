@@ -55,8 +55,8 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
+        <div className="col-span-1 sm:col-span-2">
           <label htmlFor="businessName" className="block text-sm font-medium text-secondary">
             Business Name *
           </label>
@@ -67,7 +67,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             value={formData.businessName}
             onChange={handleChange}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -81,7 +81,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             name="tradeName"
             value={formData.tradeName}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -96,7 +96,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             value={formData.businessType}
             onChange={handleChange}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -111,7 +111,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             value={formData.uniqueIdentificationNumber}
             onChange={handleChange}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -125,7 +125,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             name="businessNumber"
             value={formData.businessNumber}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -139,7 +139,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             name="fiscalNumber"
             value={formData.fiscalNumber}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -153,7 +153,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             name="vatNumber"
             value={formData.vatNumber}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -168,11 +168,11 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             value={formData.registrationDate}
             onChange={handleChange}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
-        <div>
+        <div className="col-span-1 sm:col-span-2">
           <label htmlFor="municipality" className="block text-sm font-medium text-secondary">
             Municipality *
           </label>
@@ -183,11 +183,11 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             value={formData.municipality}
             onChange={handleChange}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
-        <div>
+        <div className="col-span-1 sm:col-span-2">
           <label htmlFor="address" className="block text-sm font-medium text-secondary">
             Address *
           </label>
@@ -198,7 +198,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             value={formData.address}
             onChange={handleChange}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -213,7 +213,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             value={formData.phoneNumber}
             onChange={handleChange}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -228,7 +228,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             value={formData.email}
             onChange={handleChange}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
 
@@ -242,15 +242,15 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({ company, onSubmit }) =
             name="bankAccount"
             value={formData.bankAccount}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-sm"
           />
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
         <button
           type="submit"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          className="w-full sm:w-auto px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
           {company ? 'Update Company' : 'Create Company'}
         </button>
