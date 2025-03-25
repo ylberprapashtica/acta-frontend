@@ -113,7 +113,7 @@ export const CompanyList: React.FC = () => {
         </Link>
       </div>
 
-      <div className="bg-white shadow rounded-lg">
+      <div className="md:bg-white md:shadow rounded-lg">
         {companies.length === 0 ? (
           <div className="text-center py-4">
             <p className="text-gray-600">No companies found. Add your first company to get started.</p>

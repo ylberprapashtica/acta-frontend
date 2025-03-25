@@ -2,16 +2,21 @@ import { createBrowserRouter } from 'react-router-dom';
 import { CompanyList } from '../components/company/CompanyList';
 import { CompanyForm } from '../components/company/CompanyForm';
 import { Layout } from '../components/layout/Layout';
-import { ArticlePage } from '../pages/ArticlePage';
-import { InvoicesPage } from '../pages/InvoicesPage';
+import { ArticleList } from '../components/ArticleList';
+import { ArticleForm } from '../components/ArticleForm';
+import { InvoiceList } from '../components/InvoiceList';
+import { InvoiceForm } from '../components/InvoiceForm';
+import { TenantList } from '../components/admin/TenantList';
+import { TenantForm } from '../components/admin/TenantForm';
 import Login from '../pages/Login';
 import Logout from '../pages/Logout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import Home from '../pages/Home';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import { AdminPage } from '../pages/admin/AdminPage';
-import { TenantsPage } from '../pages/admin/TenantsPage';
 import { UsersPage } from '../pages/admin/UsersPage';
+import { UserList } from '../components/admin/UserList';
+import { UserForm } from '../components/admin/UserForm';
 
 export const router = createBrowserRouter([
   {
@@ -53,11 +58,37 @@ export const router = createBrowserRouter([
       },
       {
         path: 'articles',
-        element: <ArticlePage />,
+        children: [
+          {
+            index: true,
+            element: <ArticleList />,
+          },
+          {
+            path: 'new',
+            element: <ArticleForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <ArticleForm />,
+          },
+        ],
       },
       {
         path: 'invoices',
-        element: <InvoicesPage />,
+        children: [
+          {
+            index: true,
+            element: <InvoiceList />,
+          },
+          {
+            path: 'new',
+            element: <InvoiceForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <InvoiceForm />,
+          },
+        ],
       },
     ],
   },
@@ -75,11 +106,37 @@ export const router = createBrowserRouter([
       },
       {
         path: 'tenants',
-        element: <TenantsPage />,
+        children: [
+          {
+            index: true,
+            element: <TenantList />,
+          },
+          {
+            path: 'new',
+            element: <TenantForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <TenantForm />,
+          },
+        ],
       },
       {
         path: 'users',
-        element: <UsersPage />,
+        children: [
+          {
+            index: true,
+            element: <UserList />,
+          },
+          {
+            path: 'new',
+            element: <UserForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <UserForm />,
+          },
+        ],
       },
     ],
   },

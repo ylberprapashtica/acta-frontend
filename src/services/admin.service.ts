@@ -7,6 +7,11 @@ export const getTenants = async (): Promise<Tenant[]> => {
   return response.data;
 };
 
+export const getTenant = async (id: string): Promise<Tenant> => {
+  const response = await axiosInstance.get(`/tenants/${id}`);
+  return response.data;
+};
+
 export const createTenant = async (data: CreateTenantDto): Promise<Tenant> => {
   const response = await axiosInstance.post('/tenants', data);
   return response.data;
@@ -40,4 +45,9 @@ export const updateUser = async (id: string, data: UpdateUserDto): Promise<User>
 
 export const deleteUser = async (id: string): Promise<void> => {
   await axiosInstance.delete(`/users/${id}`);
+};
+
+export const getUser = async (id: string): Promise<User> => {
+  const response = await axiosInstance.get(`/users/${id}`);
+  return response.data;
 }; 

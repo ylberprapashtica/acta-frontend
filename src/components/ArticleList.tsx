@@ -1,13 +1,20 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Article } from '../types/article';
 import { articleService } from '../services/article.service';
 import { DataList } from './common/DataList';
 
-interface ArticleListProps {
-  onEdit: (article: Article) => void;
+interface PaginatedResponse<T> {
+  items: T[];
+  meta: {
+    total: number;
+    page: number;
+    lastPage: number;
+    limit: number;
+  };
 }
 
-export function ArticleList({ onEdit }: ArticleListProps) {
+export const ArticleList: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,31 +28,30 @@ export function ArticleList({ onEdit }: ArticleListProps) {
   const loadArticles = async (page: number) => {
     try {
       setLoading(true);
-      const data = await articleService.getArticles(page);
-      const articlesWithNumberPrices = data.items.map((article: Article) => ({
-        ...article,
-        basePrice: Number(article.basePrice)
-      }));
-      setArticles(articlesWithNumberPrices);
-      setTotalPages(data.meta.lastPage);
+      const response = await articleService.getArticles(page);
+      setArticles(response.items);
+      setTotalPages(response.meta.lastPage);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load articles');
+      setError('Failed to load articles');
+      console.error('Error loading articles:', err);
+      setArticles([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     if (!window.confirm('Are you sure you want to delete this article?')) {
       return;
     }
 
     try {
-      await articleService.deleteArticle(id);
-      await loadArticles(currentPage); // Reload the current page after deletion
+      await articleService.deleteArticle(Number(id));
+      await loadArticles(currentPage);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete article');
+      setError('Failed to delete article');
+      console.error(err);
     }
   };
 
@@ -76,7 +82,9 @@ export function ArticleList({ onEdit }: ArticleListProps) {
   const actions = [
     {
       label: 'Edit',
-      onClick: onEdit,
+      onClick: (article: Article) => {
+        window.location.href = `/articles/${article.id}/edit`;
+      },
       variant: 'primary' as const,
     },
     {
@@ -96,17 +104,34 @@ export function ArticleList({ onEdit }: ArticleListProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6">Articles</h2>
-      <DataList
-        data={articles}
-        columns={columns}
-        actions={actions}
-        pagination={{
-          currentPage,
-          totalPages,
-          onPageChange: setCurrentPage,
-        }}
-      />
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Articles</h2>
+        <Link
+          to="/articles/new"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Add New Article
+        </Link>
+      </div>
+
+      <div className="md:bg-white md:shadow rounded-lg">
+        {articles.length === 0 ? (
+          <div className="text-center py-4">
+            <p className="text-gray-600">No articles found. Add your first article to get started.</p>
+          </div>
+        ) : (
+          <DataList
+            data={articles}
+            columns={columns}
+            actions={actions}
+            pagination={{
+              currentPage,
+              totalPages,
+              onPageChange: setCurrentPage,
+            }}
+          />
+        )}
+      </div>
     </div>
   );
-} 
+}; 

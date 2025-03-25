@@ -1,122 +1,137 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Invoice } from '../types/invoice';
-import { DataList } from './common/DataList';
-import { DateRangeFilter } from './common/DateRangeFilter';
 import { invoiceService } from '../services/invoice.service';
+import { DataList } from './common/DataList';
 
-interface InvoiceListProps {
-  invoices: Invoice[];
-  onInvoiceClick: (invoice: Invoice) => void;
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+interface PaginatedResponse<T> {
+  items: T[];
+  meta: {
+    total: number;
+    page: number;
+    lastPage: number;
+    limit: number;
+  };
 }
 
-export const InvoiceList: React.FC<InvoiceListProps> = ({ 
-  invoices, 
-  onInvoiceClick, 
-  currentPage,
-  totalPages,
-  onPageChange 
-}) => {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+export const InvoiceList: React.FC = () => {
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const filteredInvoices = useMemo(() => {
-    return invoices.filter(invoice => {
-      const invoiceDate = new Date(invoice.issueDate);
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
+  useEffect(() => {
+    loadInvoices(currentPage);
+  }, [currentPage]);
 
-      if (start && end) {
-        return invoiceDate >= start && invoiceDate <= end;
-      } else if (start) {
-        return invoiceDate >= start;
-      } else if (end) {
-        return invoiceDate <= end;
-      }
-      return true;
-    });
-  }, [invoices, startDate, endDate]);
-
-  const handleDownloadPdf = async (invoice: Invoice) => {
+  const loadInvoices = async (page: number) => {
     try {
-      setDownloadingId(invoice.id);
-      const blob = await invoiceService.downloadPdf(invoice.id);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `invoice-${invoice.invoiceNumber}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Error downloading PDF:', error);
+      setLoading(true);
+      const response = await invoiceService.getInvoices(page);
+      setInvoices(response.items);
+      setTotalPages(response.meta.lastPage);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load invoices');
+      console.error('Error loading invoices:', err);
+      setInvoices([]);
     } finally {
-      setDownloadingId(null);
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string | number) => {
+    if (!window.confirm('Are you sure you want to delete this invoice?')) {
+      return;
+    }
+
+    try {
+      await invoiceService.deleteInvoice(Number(id));
+      await loadInvoices(currentPage);
+    } catch (err) {
+      setError('Failed to delete invoice');
+      console.error(err);
     }
   };
 
   const columns = [
     {
       header: 'Invoice Number',
-      accessor: (invoice: Invoice) => `#${invoice.invoiceNumber}`,
-    },
-    {
-      header: 'Issue Date',
-      accessor: (invoice: Invoice) => new Date(invoice.issueDate).toLocaleDateString(),
+      accessor: (invoice: Invoice) => invoice.invoiceNumber,
     },
     {
       header: 'Recipient',
       accessor: (invoice: Invoice) => invoice.recipient.businessName,
     },
     {
+      header: 'Issue Date',
+      accessor: (invoice: Invoice) => new Date(invoice.issueDate).toLocaleDateString(),
+    },
+    {
+      header: 'Due Date',
+      accessor: (invoice: Invoice) => new Date(invoice.dueDate).toLocaleDateString(),
+    },
+    {
       header: 'Total Amount',
-      accessor: (invoice: Invoice) => `€${Number(invoice.totalAmount).toFixed(2)}`,
+      accessor: (invoice: Invoice) => Number(invoice.totalAmount).toFixed(2),
       align: 'right' as const,
     },
   ];
 
   const actions = [
     {
-      label: 'View Details',
-      onClick: (invoice: Invoice) => onInvoiceClick(invoice),
+      label: 'View',
+      onClick: (invoice: Invoice) => {
+        window.location.href = `/invoices/${invoice.id}`;
+      },
       variant: 'primary' as const,
     },
     {
-      label: downloadingId ? 'Downloading...' : 'Download PDF',
-      onClick: handleDownloadPdf,
-      variant: 'secondary' as const,
-      disabled: downloadingId !== null,
+      label: 'Delete',
+      onClick: (invoice: Invoice) => handleDelete(invoice.id),
+      variant: 'danger' as const,
     },
   ];
 
+  if (loading) {
+    return <div className="text-center py-4">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center py-4">{error}</div>;
+  }
+
   return (
-    <div className="bg-background-paper shadow-card rounded-lg overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-900">Invoices</h2>
-          <DateRangeFilter
-            startDate={startDate}
-            endDate={endDate}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
-          />
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Invoices</h2>
+        <Link
+          to="/invoices/new"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Create New Invoice
+        </Link>
       </div>
-      <DataList
-        data={filteredInvoices}
-        columns={columns}
-        actions={actions}
-        onRowClick={onInvoiceClick}
-        pagination={{
-          currentPage,
-          totalPages,
-          onPageChange,
-        }}
-      />
+
+      <div className="md:bg-white md:shadow rounded-lg">
+        {invoices.length === 0 ? (
+          <div className="text-center py-4">
+            <p className="text-gray-600">No invoices found. Create your first invoice to get started.</p>
+          </div>
+        ) : (
+          <DataList
+            data={invoices}
+            columns={columns}
+            actions={actions}
+            pagination={{
+              currentPage,
+              totalPages,
+              onPageChange: setCurrentPage,
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }; 

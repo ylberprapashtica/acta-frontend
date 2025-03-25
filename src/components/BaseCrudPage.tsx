@@ -1,28 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { Company } from '../services/company.service';
-import { CompanyList } from '../components/CompanyList';
-import { CompanyForm } from '../components/CompanyForm';
 
-export const CompaniesPage: React.FC = () => {
-  const [companies, setCompanies] = useState<Company[]>([]);
+interface BaseCrudPageProps<T> {
+  title: string;
+  subtitle: string;
+  fetchItems: () => Promise<T[]>;
+  createItem: (data: Omit<T, 'id'>) => Promise<T>;
+  updateItem: (id: string | number, data: Omit<T, 'id'>) => Promise<T>;
+  deleteItem: (id: string | number) => Promise<void>;
+  ListComponent: React.ComponentType<{
+    items: T[];
+    onEdit: (item: T) => void;
+    onDelete: (id: string | number) => void;
+  }>;
+  FormComponent: React.ComponentType<{
+    item?: T;
+    onSubmit: (data: Omit<T, 'id'>) => Promise<void>;
+    onCancel: () => void;
+  }>;
+}
+
+export function BaseCrudPage<T extends { id: string | number }>({
+  title,
+  subtitle,
+  fetchItems,
+  createItem,
+  updateItem,
+  deleteItem,
+  ListComponent,
+  FormComponent,
+}: BaseCrudPageProps<T>) {
+  const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<Company | undefined>();
+  const [editingItem, setEditingItem] = useState<T | undefined>();
 
   useEffect(() => {
-    fetchCompanies();
+    loadItems();
   }, []);
 
-  const fetchCompanies = async () => {
+  const loadItems = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/companies');
-      if (!response.ok) {
-        throw new Error('Failed to fetch companies');
-      }
-      const data = await response.json();
-      setCompanies(data);
+      const data = await fetchItems();
+      setItems(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -30,75 +51,42 @@ export const CompaniesPage: React.FC = () => {
     }
   };
 
-  const handleCreateCompany = async (data: Omit<Company, 'id'>) => {
+  const handleCreate = async (data: Omit<T, 'id'>) => {
     try {
-      const response = await fetch('/api/companies', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create company');
-      }
-
-      const newCompany = await response.json();
-      setCompanies((prev) => [...prev, newCompany]);
+      const newItem = await createItem(data);
+      setItems((prev) => [...prev, newItem]);
       setShowForm(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
-  const handleUpdateCompany = async (data: Omit<Company, 'id'>) => {
-    if (!editingCompany) return;
+  const handleUpdate = async (data: Omit<T, 'id'>) => {
+    if (!editingItem) return;
 
     try {
-      const response = await fetch(`/api/companies/${editingCompany.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update company');
-      }
-
-      const updatedCompany = await response.json();
-      setCompanies((prev) =>
-        prev.map((company) =>
-          company.id === updatedCompany.id ? updatedCompany : company
-        )
+      const updatedItem = await updateItem(editingItem.id, data);
+      setItems((prev) =>
+        prev.map((item) => (item.id === updatedItem.id ? updatedItem : item))
       );
-      setEditingCompany(undefined);
+      setEditingItem(undefined);
       setShowForm(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
-  const handleDeleteCompany = async (id: string) => {
+  const handleDelete = async (id: string | number) => {
     try {
-      const response = await fetch(`/api/companies/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete company');
-      }
-
-      setCompanies((prev) => prev.filter((company) => company.id !== id));
+      await deleteItem(id);
+      setItems((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
-  const handleEditCompany = (company: Company) => {
-    setEditingCompany(company);
+  const handleEdit = (item: T) => {
+    setEditingItem(item);
     setShowForm(true);
   };
 
@@ -125,19 +113,17 @@ export const CompaniesPage: React.FC = () => {
         <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Companies</h1>
-              <p className="mt-1 text-sm text-secondary">
-                Manage your business partners and clients
-              </p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{title}</h1>
+              <p className="mt-1 text-sm text-secondary">{subtitle}</p>
             </div>
             <button
               onClick={() => {
-                setEditingCompany(undefined);
+                setEditingItem(undefined);
                 setShowForm(true);
               }}
               className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             >
-              Add New Company
+              Add New {title.slice(0, -1)}
             </button>
           </div>
         </div>
@@ -149,11 +135,11 @@ export const CompaniesPage: React.FC = () => {
           <div className="px-4 sm:px-6 py-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0 mb-6">
               <h2 className="text-lg font-semibold text-gray-900">
-                {editingCompany ? 'Edit Company' : 'Create New Company'}
+                {editingItem ? `Edit ${title.slice(0, -1)}` : `Create New ${title.slice(0, -1)}`}
               </h2>
               <button
                 onClick={() => {
-                  setEditingCompany(undefined);
+                  setEditingItem(undefined);
                   setShowForm(false);
                 }}
                 className="text-secondary hover:text-secondary-dark"
@@ -161,19 +147,23 @@ export const CompaniesPage: React.FC = () => {
                 Cancel
               </button>
             </div>
-            <CompanyForm
-              company={editingCompany}
-              onSubmit={editingCompany ? handleUpdateCompany : handleCreateCompany}
+            <FormComponent
+              item={editingItem}
+              onSubmit={editingItem ? handleUpdate : handleCreate}
+              onCancel={() => {
+                setEditingItem(undefined);
+                setShowForm(false);
+              }}
             />
           </div>
         ) : (
-          <CompanyList
-            companies={companies}
-            onEdit={handleEditCompany}
-            onDelete={handleDeleteCompany}
+          <ListComponent
+            items={items}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         )}
       </div>
     </div>
   );
-}; 
+} 

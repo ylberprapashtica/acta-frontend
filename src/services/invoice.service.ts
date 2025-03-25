@@ -21,7 +21,7 @@ export interface CreateInvoiceData {
     quantity: number;
     unitPrice?: number;
   }>;
-  issueDate?: Date;
+  issueDate?: string | Date;
 }
 
 class InvoiceService {
@@ -40,6 +40,11 @@ class InvoiceService {
     return response.data;
   }
 
+  async updateInvoice(id: number, data: CreateInvoiceData): Promise<Invoice> {
+    const response = await axiosInstance.put(`/invoices/${id}`, data);
+    return response.data;
+  }
+
   async getInvoicesByCompany(companyId: string, page: number = 1, limit: number = 100): Promise<PaginatedResponse<Invoice>> {
     const response = await axiosInstance.get(`/invoices/company/${companyId}?page=${page}&limit=${limit}`);
     return response.data;
@@ -50,6 +55,10 @@ class InvoiceService {
       responseType: 'blob'
     });
     return response.data;
+  }
+
+  async deleteInvoice(id: number): Promise<void> {
+    await axiosInstance.delete(`/invoices/${id}`);
   }
 }
 

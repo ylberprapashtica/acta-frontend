@@ -1,40 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Article, VatCode } from '../types/article';
-import { articleService } from '../services/article.service';
+import { Tenant, CreateTenantDto, UpdateTenantDto } from '../../types/admin';
+import { getTenant, createTenant, updateTenant } from '../../services/admin.service';
 
-export const ArticleForm: React.FC = () => {
+export const TenantForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Omit<Article, 'id'>>({
+  const [formData, setFormData] = useState<CreateTenantDto>({
     name: '',
-    unit: '',
-    code: '',
-    vatCode: VatCode.ZERO,
-    basePrice: 0,
+    slug: '',
+    description: '',
   });
 
   useEffect(() => {
     if (id) {
-      loadArticle();
+      loadTenant(id);
     }
   }, [id]);
 
-  const loadArticle = async () => {
+  const loadTenant = async (tenantId: string) => {
     try {
       setLoading(true);
-      const article = await articleService.getArticle(Number(id));
+      const tenant = await getTenant(tenantId);
       setFormData({
-        name: article.name,
-        unit: article.unit,
-        code: article.code,
-        vatCode: article.vatCode,
-        basePrice: Number(article.basePrice),
+        name: tenant.name,
+        slug: tenant.slug,
+        description: tenant.description || '',
       });
+      setError(null);
     } catch (err) {
-      setError('Failed to load article');
+      setError('Failed to load tenant');
       console.error(err);
     } finally {
       setLoading(false);
@@ -46,24 +43,24 @@ export const ArticleForm: React.FC = () => {
     try {
       setLoading(true);
       if (id) {
-        await articleService.updateArticle(Number(id), formData);
+        await updateTenant(id, formData);
       } else {
-        await articleService.createArticle(formData);
+        await createTenant(formData);
       }
-      navigate('/articles');
+      navigate('/admin/tenants');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to save article');
+      setError(err.response?.data?.message || 'Failed to save tenant');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'basePrice' ? Number(value) : value,
+      [name]: value,
     }));
   };
 
@@ -78,7 +75,7 @@ export const ArticleForm: React.FC = () => {
   return (
     <div className="container mx-auto py-4">
       <h1 className="text-2xl font-bold mb-4">
-        {id ? 'Edit Article' : 'Create New Article'}
+        {id ? 'Edit Tenant' : 'Create New Tenant'}
       </h1>
 
       {error && (
@@ -97,7 +94,7 @@ export const ArticleForm: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit} className="max-w-2xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Name
@@ -114,12 +111,12 @@ export const ArticleForm: React.FC = () => {
 
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Code
+              Slug
             </label>
             <input
               type="text"
-              name="code"
-              value={formData.code}
+              name="slug"
+              value={formData.slug}
               onChange={handleChange}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
@@ -128,47 +125,13 @@ export const ArticleForm: React.FC = () => {
 
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Unit
+              Description
             </label>
-            <input
-              type="text"
-              name="unit"
-              value={formData.unit}
+            <textarea
+              name="description"
+              value={formData.description}
               onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              VAT Code
-            </label>
-            <select
-              name="vatCode"
-              value={formData.vatCode}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            >
-              {Object.values(VatCode).map(code => (
-                <option key={code} value={code}>{code}%</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Base Price
-            </label>
-            <input
-              type="number"
-              name="basePrice"
-              value={formData.basePrice}
-              onChange={handleChange}
-              required
-              min="0"
-              step="0.01"
+              rows={3}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
           </div>
@@ -177,7 +140,7 @@ export const ArticleForm: React.FC = () => {
         <div className="mt-6 flex justify-end space-x-3">
           <button
             type="button"
-            onClick={() => navigate('/articles')}
+            onClick={() => navigate('/admin/tenants')}
             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Cancel

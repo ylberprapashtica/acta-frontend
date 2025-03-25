@@ -1,13 +1,13 @@
 import React from 'react';
-import { Company } from '../services/company.service';
+import { Company } from '../types/company';
 
 interface CompanyListProps {
-  companies: Company[];
+  items: Company[];
   onEdit: (company: Company) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string | number) => void;
 }
 
-export const CompanyList: React.FC<CompanyListProps> = ({ companies, onEdit, onDelete }) => {
+export const CompanyList: React.FC<CompanyListProps> = ({ items, onEdit, onDelete }) => {
   return (
     <div className="overflow-x-auto -mx-4 sm:mx-0">
       <div className="inline-block min-w-full align-middle">
@@ -36,7 +36,7 @@ export const CompanyList: React.FC<CompanyListProps> = ({ companies, onEdit, onD
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {companies.map((company) => (
+              {items.map((company) => (
                 <tr key={company.id} className="hover:bg-gray-50">
                   <td className="px-3 py-4 sm:px-6 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div className="flex flex-col sm:hidden">
@@ -52,7 +52,7 @@ export const CompanyList: React.FC<CompanyListProps> = ({ companies, onEdit, onD
                   <td className="hidden md:table-cell px-3 py-4 sm:px-6 whitespace-nowrap text-sm text-gray-500">
                     {company.businessType}
                   </td>
-                  <td className="hidden lg:table-cell px-3 py-4 sm:px-6 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden lg:table-cell px-3 py-4 sm:px-6 text-sm text-gray-500">
                     {company.address}
                   </td>
                   <td className="hidden md:table-cell px-3 py-4 sm:px-6 whitespace-nowrap text-sm text-gray-500">
@@ -61,13 +61,13 @@ export const CompanyList: React.FC<CompanyListProps> = ({ companies, onEdit, onD
                   <td className="px-3 py-4 sm:px-6 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => onEdit(company)}
-                      className="text-primary hover:text-primary-dark mr-2 sm:mr-4 p-1 sm:p-0"
+                      className="text-primary hover:text-primary-dark mr-4"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => onDelete(company.id)}
-                      className="text-red-600 hover:text-red-900 p-1 sm:p-0"
+                      className="text-red-600 hover:text-red-900"
                     >
                       Delete
                     </button>

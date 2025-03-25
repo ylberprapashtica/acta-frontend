@@ -60,7 +60,9 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
                   key={index}
                   className={`px-6 py-3 text-${column.align || 'left'} text-xs font-medium text-gray-500 uppercase tracking-wider`}
                 >
-                  {column.header}
+                  <span className="text-xs font-medium text-gray-500 uppercase whitespace-nowrap pr-4">
+                    {column.header}
+                  </span>
                 </th>
               ))}
               {actions && actions.length > 0 && (
@@ -115,11 +117,14 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
           <div
             key={rowIndex}
             onClick={() => onRowClick?.(item)}
-            className={`bg-white rounded-lg shadow p-4 space-y-2 ${onRowClick ? 'hover:bg-gray-50 cursor-pointer' : ''}`}
+            className={`bg-white py-4 rounded-lg shadow space-y-2 
+               ${onRowClick ? 'hover:bg-gray-100 cursor-pointer' : ''}`}
           >
             {columns.map((column, colIndex) => (
-              <div key={colIndex} className="flex flex-col">
-                <span className="text-xs font-medium text-gray-500 uppercase">
+              <div key={colIndex} className={`flex flex-row justify-between items-center py-2 px-4 ${
+                colIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+            }`}>
+                <span className="text-xs font-medium text-gray-500 uppercase whitespace-nowrap pr-4">
                   {column.header}
                 </span>
                 <span className="text-sm text-gray-900">
@@ -128,7 +133,7 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
               </div>
             ))}
             {actions && actions.length > 0 && (
-              <div className="pt-2 flex flex-wrap gap-2">
+              <div className="pt-2 px-4 flex flex-wrap gap-2 justify-end">
                 {actions.map((action, actionIndex) => (
                   <button
                     key={actionIndex}

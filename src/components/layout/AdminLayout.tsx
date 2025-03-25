@@ -7,7 +7,7 @@ export function AdminLayout() {
     <div className="min-h-screen bg-gray-100">
       <AdminNavbar />
       <main className="py-10">
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-6 pb-20 md:pb-6">
           <Outlet />
         </div>
       </main>

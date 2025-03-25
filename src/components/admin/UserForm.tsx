@@ -1,40 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Article, VatCode } from '../types/article';
-import { articleService } from '../services/article.service';
+import { User, CreateUserDto, UpdateUserDto, Tenant } from '../../types/admin';
+import { getUser, createUser, updateUser, getTenants } from '../../services/admin.service';
 
-export const ArticleForm: React.FC = () => {
+export const UserForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Omit<Article, 'id'>>({
-    name: '',
-    unit: '',
-    code: '',
-    vatCode: VatCode.ZERO,
-    basePrice: 0,
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [formData, setFormData] = useState<CreateUserDto>({
+    email: '',
+    firstName: '',
+    lastName: '',
+    tenantId: '',
+    role: 'user',
+    password: '',
   });
 
   useEffect(() => {
-    if (id) {
-      loadArticle();
-    }
+    loadData();
   }, [id]);
 
-  const loadArticle = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const article = await articleService.getArticle(Number(id));
-      setFormData({
-        name: article.name,
-        unit: article.unit,
-        code: article.code,
-        vatCode: article.vatCode,
-        basePrice: Number(article.basePrice),
-      });
+      const tenantsData = await getTenants();
+      setTenants(tenantsData);
+
+      if (id) {
+        const user = await getUser(id);
+        setFormData({
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          tenantId: user.tenantId || '',
+          role: user.role === 'super_admin' ? 'admin' : user.role,
+          password: '',
+        });
+      }
+      setError(null);
     } catch (err) {
-      setError('Failed to load article');
+      setError('Failed to load data');
       console.error(err);
     } finally {
       setLoading(false);
@@ -46,13 +53,13 @@ export const ArticleForm: React.FC = () => {
     try {
       setLoading(true);
       if (id) {
-        await articleService.updateArticle(Number(id), formData);
+        await updateUser(id, formData);
       } else {
-        await articleService.createArticle(formData);
+        await createUser(formData);
       }
-      navigate('/articles');
+      navigate('/admin/users');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to save article');
+      setError(err.response?.data?.message || 'Failed to save user');
       console.error(err);
     } finally {
       setLoading(false);
@@ -63,7 +70,7 @@ export const ArticleForm: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'basePrice' ? Number(value) : value,
+      [name]: value,
     }));
   };
 
@@ -78,7 +85,7 @@ export const ArticleForm: React.FC = () => {
   return (
     <div className="container mx-auto py-4">
       <h1 className="text-2xl font-bold mb-4">
-        {id ? 'Edit Article' : 'Create New Article'}
+        {id ? 'Edit User' : 'Create New User'}
       </h1>
 
       {error && (
@@ -97,15 +104,15 @@ export const ArticleForm: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit} className="max-w-2xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name
+              Email
             </label>
             <input
-              type="text"
-              name="name"
-              value={formData.name}
+              type="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
@@ -114,12 +121,12 @@ export const ArticleForm: React.FC = () => {
 
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Code
+              First Name
             </label>
             <input
               type="text"
-              name="code"
-              value={formData.code}
+              name="firstName"
+              value={formData.firstName}
               onChange={handleChange}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
@@ -128,12 +135,12 @@ export const ArticleForm: React.FC = () => {
 
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Unit
+              Last Name
             </label>
             <input
               type="text"
-              name="unit"
-              value={formData.unit}
+              name="lastName"
+              value={formData.lastName}
               onChange={handleChange}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
@@ -142,42 +149,61 @@ export const ArticleForm: React.FC = () => {
 
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              VAT Code
+              Tenant
             </label>
             <select
-              name="vatCode"
-              value={formData.vatCode}
+              name="tenantId"
+              value={formData.tenantId}
               onChange={handleChange}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             >
-              {Object.values(VatCode).map(code => (
-                <option key={code} value={code}>{code}%</option>
+              <option value="">Select Tenant</option>
+              {tenants.map(tenant => (
+                <option key={tenant.id} value={tenant.id}>
+                  {tenant.name}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Base Price
+              Role
             </label>
-            <input
-              type="number"
-              name="basePrice"
-              value={formData.basePrice}
+            <select
+              name="role"
+              value={formData.role}
               onChange={handleChange}
               required
-              min="0"
-              step="0.01"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            />
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
+
+          {!id && (
+            <div className="form-group">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required={!id}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+          )}
         </div>
 
         <div className="mt-6 flex justify-end space-x-3">
           <button
             type="button"
-            onClick={() => navigate('/articles')}
+            onClick={() => navigate('/admin/users')}
             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Cancel
