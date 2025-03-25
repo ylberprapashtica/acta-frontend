@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { CompanyList } from '../components/company/CompanyList';
 import { CompanyForm } from '../components/company/CompanyForm';
-import { Layout } from '../components/layout/Layout';
+import { UserLayout } from '../components/layout/UserLayout';
 import { ArticleList } from '../components/ArticleList';
 import { ArticleForm } from '../components/ArticleForm';
 import { InvoiceList } from '../components/InvoiceList';
@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
     path: '/',
     element: (
       <ProtectedRoute>
-        <Layout />
+        <UserLayout />
       </ProtectedRoute>
     ),
     children: [

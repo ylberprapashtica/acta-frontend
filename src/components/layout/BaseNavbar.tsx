@@ -32,7 +32,7 @@ export const BaseNavbar: React.FC<BaseNavbarProps> = ({
   return (
     <>
       {/* Desktop Navigation */}
-      <div className="hidden md:block bg-white shadow-sm border-b border-gray-200">
+      <div className="hidden md:block bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between h-16">
             <div className="flex">
@@ -86,7 +86,7 @@ export const BaseNavbar: React.FC<BaseNavbarProps> = ({
       </div>
 
       {/* Mobile Top Bar with Hamburger Menu */}
-      <div className="md:hidden bg-white shadow-sm border-b border-gray-200">
+      <div className="md:hidden bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between h-16">
             {/* Logo/Home Link */}
