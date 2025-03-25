@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Invoice } from '../types/invoice';
 import { invoiceService } from '../services/invoice.service';
 import { DataList } from './common/DataList';
+import { DownloadInvoiceButton } from './common/DownloadInvoiceButton';
 
 interface PaginatedResponse<T> {
   items: T[];
@@ -20,6 +21,7 @@ export const InvoiceList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     loadInvoices(currentPage);
@@ -55,6 +57,38 @@ export const InvoiceList: React.FC = () => {
     }
   };
 
+  const handleDownload = async (invoice: Invoice) => {
+    try {
+      setDownloadingIds(prev => new Set(prev).add(Number(invoice.id)));
+      const pdfBlob = await invoiceService.downloadPdf(Number(invoice.id));
+      
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(pdfBlob);
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `invoice-${invoice.invoiceNumber}.pdf`;
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError('Failed to download invoice');
+      console.error(err);
+    } finally {
+      setDownloadingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(Number(invoice.id));
+        return newSet;
+      });
+    }
+  };
+
   const columns = [
     {
       header: 'Invoice Number',
@@ -86,6 +120,11 @@ export const InvoiceList: React.FC = () => {
         window.location.href = `/invoices/${invoice.id}`;
       },
       variant: 'primary' as const,
+    },
+    {
+      label: (invoice: Invoice) => <DownloadInvoiceButton invoice={invoice} variant="secondary" />,
+      onClick: () => {}, // Empty function since the button handles its own click
+      variant: 'secondary' as const,
     },
     {
       label: 'Delete',

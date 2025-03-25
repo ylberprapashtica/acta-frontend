@@ -8,7 +8,7 @@ interface Column<T> {
 }
 
 interface Action<T> {
-  label: string;
+  label: string | ((item: T) => React.ReactNode);
   onClick: (item: T) => void;
   variant?: 'primary' | 'secondary' | 'danger';
 }
@@ -99,7 +99,7 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
                           }}
                           className={getButtonClassName(action.variant)}
                         >
-                          {action.label}
+                          {typeof action.label === 'function' ? action.label(item) : action.label}
                         </button>
                       ))}
                     </div>
@@ -143,7 +143,7 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
                     }}
                     className={getButtonClassName(action.variant)}
                   >
-                    {action.label}
+                    {typeof action.label === 'function' ? action.label(item) : action.label}
                   </button>
                 ))}
               </div>
