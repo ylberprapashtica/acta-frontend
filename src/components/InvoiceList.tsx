@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Invoice } from '../types/invoice';
 import { DataList } from './common/DataList';
 import { DateRangeFilter } from './common/DateRangeFilter';
+import { invoiceService } from '../services/invoice.service';
 
 interface InvoiceListProps {
   invoices: Invoice[];
@@ -20,6 +21,7 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({
 }) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
   const filteredInvoices = useMemo(() => {
     return invoices.filter(invoice => {
@@ -37,6 +39,25 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({
       return true;
     });
   }, [invoices, startDate, endDate]);
+
+  const handleDownloadPdf = async (invoice: Invoice) => {
+    try {
+      setDownloadingId(invoice.id);
+      const blob = await invoiceService.downloadPdf(invoice.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `invoice-${invoice.invoiceNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const columns = [
     {
@@ -65,11 +86,10 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({
       variant: 'primary' as const,
     },
     {
-      label: 'Download PDF',
-      onClick: (invoice: Invoice) => {
-        window.open(`${import.meta.env.VITE_API_URL}/invoices/${invoice.id}/pdf`, '_blank');
-      },
+      label: downloadingId ? 'Downloading...' : 'Download PDF',
+      onClick: handleDownloadPdf,
       variant: 'secondary' as const,
+      disabled: downloadingId !== null,
     },
   ];
 

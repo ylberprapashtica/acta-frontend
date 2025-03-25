@@ -1,11 +1,33 @@
-import React from 'react';
-import { Invoice } from '../services/invoice.service';
+import React, { useState } from 'react';
+import { Invoice, InvoiceItem } from '../types/invoice';
+import { invoiceService } from '../services/invoice.service';
 
 interface InvoiceDetailProps {
   invoice: Invoice;
 }
 
 export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoice }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    try {
+      setIsDownloading(true);
+      const blob = await invoiceService.downloadPdf(invoice.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `invoice-${invoice.invoiceNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="bg-background-paper shadow-card rounded-lg overflow-hidden">
       {/* Header */}
@@ -21,10 +43,13 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoice }) => {
           </div>
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => window.open(`${import.meta.env.VITE_API_URL}/invoices/${invoice.id}/pdf`, '_blank')}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              onClick={handleDownloadPdf}
+              disabled={isDownloading}
+              className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
+                isDownloading ? 'opacity-75 cursor-not-allowed' : ''
+              }`}
             >
-              Download PDF
+              {isDownloading ? 'Downloading...' : 'Download PDF'}
             </button>
             <div className="text-right">
               <p className="text-sm text-secondary">Issue Date</p>
@@ -75,7 +100,7 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoice }) => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {invoice.items.map((item) => (
+            {invoice.items.map((item: InvoiceItem) => (
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {item.article.name}
