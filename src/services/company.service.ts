@@ -12,8 +12,12 @@ interface PaginatedResponse<T> {
 }
 
 class CompanyService {
-  async getCompanies(page: number = 1, limit: number = 100): Promise<PaginatedResponse<Company>> {
-    const response = await axiosInstance.get(`/companies?page=${page}&limit=${limit}`);
+  async getCompanies(page: number = 1, limit: number = 10): Promise<PaginatedResponse<Company>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    const response = await axiosInstance.get(`/companies?${params.toString()}`);
     return response.data;
   }
 

@@ -11,6 +11,11 @@ export interface Article {
   code: string;
   vatCode: VatCode;
   basePrice: number;
+  companyId: string;
+  company?: {
+    id: string;
+    businessName: string;
+  };
 }
 
 export interface CreateArticleDto {
@@ -19,6 +24,7 @@ export interface CreateArticleDto {
   code: string;
   vatCode: VatCode;
   basePrice: number;
+  companyId: string;
 }
 
 export interface UpdateArticleDto extends Partial<CreateArticleDto> {} 

@@ -29,7 +29,7 @@ export const ArticleList: React.FC = () => {
   const loadArticles = async (page: number) => {
     try {
       setLoading(true);
-      const response = await articleService.getArticles(page);
+      const response = await articleService.getArticles(page, 10);
       setArticles(response.items);
       setTotalPages(response.meta.lastPage);
       setError(null);
@@ -60,6 +60,10 @@ export const ArticleList: React.FC = () => {
     {
       header: 'Name',
       accessor: 'name' as const,
+    },
+    {
+      header: 'Company',
+      accessor: (article: Article) => article.company?.businessName || 'N/A',
     },
     {
       header: 'Code',

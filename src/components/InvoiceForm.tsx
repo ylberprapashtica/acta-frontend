@@ -94,12 +94,27 @@ export const InvoiceForm: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
+
+    // If issuer changes, load articles for that company
+    if (name === 'issuerId' && value) {
+      try {
+        const articlesData = await articleService.getArticles(1, 100, value);
+        setArticles(articlesData.items);
+        // Clear items when issuer changes
+        setFormData(prev => ({
+          ...prev,
+          items: [{ articleId: 0, quantity: 1, unitPrice: 0 }],
+        }));
+      } catch (err) {
+        console.error('Failed to load articles for company:', err);
+      }
+    }
   };
 
   const handleItemChange = (index: number, field: string, value: string | number) => {
@@ -251,15 +266,15 @@ export const InvoiceForm: React.FC = () => {
                   value={item.articleId}
                   onChange={(e) => handleArticleSelect(index, Number(e.target.value))}
                   required
-                  disabled={isViewMode}
+                  disabled={isViewMode || !formData.issuerId}
                   className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
                     isViewMode ? 'bg-gray-100' : ''
                   }`}
                 >
-                  <option value="">Select Article</option>
+                  <option value="0">Select Article</option>
                   {articles.map(article => (
                     <option key={article.id} value={article.id}>
-                      {article.name} - €{article.basePrice}
+                      {article.name} - {article.code}
                     </option>
                   ))}
                 </select>
@@ -271,11 +286,11 @@ export const InvoiceForm: React.FC = () => {
                 </label>
                 <input
                   type="number"
+                  min="0.01"
+                  step="0.01"
                   value={item.quantity}
                   onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
                   required
-                  min="1"
-                  max="10"
                   disabled={isViewMode}
                   className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
                     isViewMode ? 'bg-gray-100' : ''
@@ -289,11 +304,11 @@ export const InvoiceForm: React.FC = () => {
                 </label>
                 <input
                   type="number"
+                  min="0"
+                  step="0.01"
                   value={item.unitPrice}
                   onChange={(e) => handleItemChange(index, 'unitPrice', Number(e.target.value))}
                   required
-                  min="0"
-                  step="0.01"
                   disabled={isViewMode}
                   className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
                     isViewMode ? 'bg-gray-100' : ''
@@ -301,15 +316,12 @@ export const InvoiceForm: React.FC = () => {
                 />
               </div>
 
-              <div className="form-groupt">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Actions
-                </label>
+              <div className="form-group flex items-end">
                 {!isViewMode && (
                   <button
                     type="button"
                     onClick={() => removeItem(index)}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
                     Remove
                   </button>
@@ -317,39 +329,37 @@ export const InvoiceForm: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
 
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={() => navigate('/invoices')}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            {isViewMode ? 'Back' : 'Cancel'}
-          </button>
           {!isViewMode && (
             <button
               type="button"
               onClick={addItem}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Add Item
             </button>
           )}
-          {isViewMode && invoice ? (
-            <DownloadInvoiceButton
-              invoice={invoice}
-              variant="secondary"
-            />
-          ) : (
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              {loading ? 'Saving...' : id ? 'Update Invoice' : 'Create Invoice'}
-            </button>
+        </div>
+
+        <div className="flex justify-end space-x-4">
+          {!isViewMode && (
+            <>
+              <button
+                type="button"
+                onClick={() => navigate('/invoices')}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                {id ? 'Update' : 'Create'} Invoice
+              </button>
+            </>
           )}
+          {isViewMode && invoice && <DownloadInvoiceButton invoice={invoice} />}
         </div>
       </form>
     </div>

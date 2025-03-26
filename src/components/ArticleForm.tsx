@@ -1,26 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Article, VatCode } from '../types/article';
+import { Company } from '../types/company';
 import { articleService } from '../services/article.service';
+import { companyService } from '../services/company.service';
 
 export const ArticleForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [formData, setFormData] = useState<Omit<Article, 'id'>>({
     name: '',
     unit: '',
     code: '',
     vatCode: VatCode.ZERO,
     basePrice: 0,
+    companyId: '',
   });
 
   useEffect(() => {
+    loadCompanies();
     if (id) {
       loadArticle();
     }
   }, [id]);
+
+  const loadCompanies = async () => {
+    try {
+      const response = await companyService.getCompanies();
+      setCompanies(response.items);
+    } catch (err) {
+      console.error('Failed to load companies:', err);
+    }
+  };
 
   const loadArticle = async () => {
     try {
@@ -32,6 +46,7 @@ export const ArticleForm: React.FC = () => {
         code: article.code,
         vatCode: article.vatCode,
         basePrice: Number(article.basePrice),
+        companyId: article.companyId,
       });
     } catch (err) {
       setError('Failed to load article');
@@ -98,6 +113,26 @@ export const ArticleForm: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="max-w-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="form-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Company
+            </label>
+            <select
+              name="companyId"
+              value={formData.companyId}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            >
+              <option value="">Select a company</option>
+              {companies.map(company => (
+                <option key={company.id} value={company.id}>
+                  {company.businessName}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Name

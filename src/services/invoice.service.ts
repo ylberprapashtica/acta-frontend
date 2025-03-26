@@ -25,8 +25,12 @@ export interface CreateInvoiceData {
 }
 
 class InvoiceService {
-  async getInvoices(page: number = 1, limit: number = 100): Promise<PaginatedResponse<Invoice>> {
-    const response = await axiosInstance.get(`/invoices?page=${page}&limit=${limit}`);
+  async getInvoices(page: number = 1, limit: number = 10): Promise<PaginatedResponse<Invoice>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    const response = await axiosInstance.get(`/invoices?${params.toString()}`);
     return response.data;
   }
 
