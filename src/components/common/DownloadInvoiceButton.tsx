@@ -26,7 +26,10 @@ export const DownloadInvoiceButton: React.FC<DownloadInvoiceButtonProps> = ({
       // Create a temporary link element
       const link = document.createElement('a');
       link.href = url;
-      link.download = `invoice-${invoice.invoiceNumber}.pdf`;
+      const issuerName = invoice.issuer.businessName.replace(/[^a-zA-Z0-9]/g, '_');
+      const recipientName = invoice.recipient.businessName.replace(/[^a-zA-Z0-9]/g, '_');
+      const date = new Date(invoice.issueDate).toISOString().split('T')[0];
+      link.download = `invoice_${invoice.id}_${issuerName}_${recipientName}_${date}.pdf`;
       
       // Append to body, click, and remove
       document.body.appendChild(link);

@@ -17,6 +17,7 @@ export const InvoiceForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
+  const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [formData, setFormData] = useState<{
     issuerId: string;
     recipientId: string;
@@ -49,16 +50,17 @@ export const InvoiceForm: React.FC = () => {
       setArticles(articlesData.items);
 
       if (id) {
-        const invoice = await invoiceService.getInvoice(Number(id));
+        const invoiceData = await invoiceService.getInvoice(Number(id));
+        setInvoice(invoiceData);
         setFormData({
-          issuerId: invoice.issuer.id.toString(),
-          recipientId: invoice.recipient.id.toString(),
-          items: invoice.items.map(item => ({
+          issuerId: invoiceData.issuer.id.toString(),
+          recipientId: invoiceData.recipient.id.toString(),
+          items: invoiceData.items.map(item => ({
             articleId: item.article.id,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
           })),
-          issueDate: new Date(invoice.issueDate),
+          issueDate: new Date(invoiceData.issueDate),
         });
       }
     } catch (err) {
@@ -237,15 +239,6 @@ export const InvoiceForm: React.FC = () => {
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900">Items</h3>
-            {!isViewMode && (
-              <button
-                type="button"
-                onClick={addItem}
-                className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Add Item
-              </button>
-            )}
           </div>
 
           {formData.items.map((item, index) => (
@@ -334,69 +327,18 @@ export const InvoiceForm: React.FC = () => {
           >
             {isViewMode ? 'Back' : 'Cancel'}
           </button>
-          {isViewMode ? (
+          {!isViewMode && (
+            <button
+              type="button"
+              onClick={addItem}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Add Item
+            </button>
+          )}
+          {isViewMode && invoice ? (
             <DownloadInvoiceButton
-              invoice={{
-                id: Number(id),
-                invoiceNumber: '', // We don't have this in the form data
-                issuer: companies.find(c => c.id.toString() === formData.issuerId) || {
-                  id: '0',
-                  businessName: '',
-                  tradeName: '',
-                  businessType: BusinessType.SOLE_PROPRIETORSHIP,
-                  uniqueIdentificationNumber: '',
-                  businessNumber: '',
-                  fiscalNumber: '',
-                  vatNumber: '',
-                  registrationDate: new Date().toISOString(),
-                  municipality: '',
-                  address: '',
-                  phoneNumber: '',
-                  email: '',
-                  bankAccount: '',
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
-                },
-                recipient: companies.find(c => c.id.toString() === formData.recipientId) || {
-                  id: '0',
-                  businessName: '',
-                  tradeName: '',
-                  businessType: BusinessType.SOLE_PROPRIETORSHIP,
-                  uniqueIdentificationNumber: '',
-                  businessNumber: '',
-                  fiscalNumber: '',
-                  vatNumber: '',
-                  registrationDate: new Date().toISOString(),
-                  municipality: '',
-                  address: '',
-                  phoneNumber: '',
-                  email: '',
-                  bankAccount: '',
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
-                },
-                items: formData.items.map(item => ({
-                  id: 0,
-                  article: articles.find(a => a.id === item.articleId) || {
-                    id: 0,
-                    name: '',
-                    unit: '',
-                    code: '',
-                    vatCode: VatCode.EIGHTEEN,
-                    basePrice: 0,
-                  },
-                  quantity: item.quantity,
-                  unitPrice: item.unitPrice || 0,
-                  totalPrice: item.quantity * (item.unitPrice || 0),
-                  vatAmount: (item.quantity * (item.unitPrice || 0)) * 0.18, // Using 18% VAT
-                })),
-                issueDate: formData.issueDate?.toISOString() || new Date().toISOString(),
-                dueDate: new Date().toISOString(), // We don't have this in the form data
-                totalAmount: formData.items.reduce((sum, item) => sum + (item.quantity * (item.unitPrice || 0)), 0),
-                totalVat: formData.items.reduce((sum, item) => sum + ((item.quantity * (item.unitPrice || 0)) * 0.18), 0), // Using 18% VAT
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              }}
+              invoice={invoice}
               variant="secondary"
             />
           ) : (
