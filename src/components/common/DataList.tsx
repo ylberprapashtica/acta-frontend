@@ -60,7 +60,7 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
                   key={index}
                   className={`px-6 py-3 text-${column.align || 'left'} text-xs font-medium text-gray-500 uppercase tracking-wider`}
                 >
-                  <span className="text-xs font-medium text-gray-500 uppercase whitespace-nowrap pr-4">
+                  <span className="text-xs font-medium text-gray-500 uppercase pr-4">
                     {column.header}
                   </span>
                 </th>

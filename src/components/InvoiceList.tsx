@@ -95,6 +95,10 @@ export const InvoiceList: React.FC = () => {
       accessor: (invoice: Invoice) => invoice.invoiceNumber,
     },
     {
+      header: 'Issuer',
+      accessor: (invoice: Invoice) => invoice.issuer.businessName,
+    },
+    {
       header: 'Recipient',
       accessor: (invoice: Invoice) => invoice.recipient.businessName,
     },
