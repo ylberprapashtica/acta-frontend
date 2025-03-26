@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Article } from '../types/article';
 import { articleService } from '../services/article.service';
 import { DataList } from './common/DataList';
@@ -15,6 +15,7 @@ interface PaginatedResponse<T> {
 }
 
 export const ArticleList: React.FC = () => {
+  const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -83,7 +84,7 @@ export const ArticleList: React.FC = () => {
     {
       label: 'Edit',
       onClick: (article: Article) => {
-        window.location.href = `/articles/${article.id}/edit`;
+        navigate(`/articles/${article.id}/edit`);
       },
       variant: 'primary' as const,
     },
