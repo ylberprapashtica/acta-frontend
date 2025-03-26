@@ -35,6 +35,22 @@ class CompanyService {
   async deleteCompany(id: string): Promise<void> {
     await axiosInstance.delete(`/companies/${id}`);
   }
+
+  async uploadLogo(id: string, file: File): Promise<Company> {
+    const formData = new FormData();
+    formData.append('logo', file);
+    const response = await axiosInstance.post(`/companies/${id}/logo`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+
+  async removeLogo(id: string): Promise<Company> {
+    const response = await axiosInstance.delete(`/companies/${id}/logo`);
+    return response.data;
+  }
 }
 
 export const companyService = new CompanyService(); 

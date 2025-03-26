@@ -20,6 +20,7 @@ export interface Company {
   phoneNumber: string;
   email: string;
   bankAccount: string;
+  logo?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,4 +39,5 @@ export interface CreateCompanyDto {
   phoneNumber: string;
   email: string;
   bankAccount: string;
+  logo?: string;
 } 

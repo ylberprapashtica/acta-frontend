@@ -24,6 +24,8 @@ export const CompanyForm: React.FC = () => {
     bankAccount: '',
   });
   const [businessInfoText, setBusinessInfoText] = useState('');
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -49,7 +51,11 @@ export const CompanyForm: React.FC = () => {
         phoneNumber: company.phoneNumber,
         email: company.email,
         bankAccount: company.bankAccount || '',
+        logo: company.logo || '',
       });
+      if (company.logo) {
+        setLogoPreview(`${import.meta.env.VITE_API_URL}/uploads/companies/${company.logo}`);
+      }
     } catch (err) {
       setError('Failed to load company');
       console.error(err);
@@ -62,11 +68,17 @@ export const CompanyForm: React.FC = () => {
     e.preventDefault();
     try {
       setLoading(true);
+      let company: Company;
       if (id) {
-        await companyService.updateCompany(id, formData);
+        company = await companyService.updateCompany(id, formData);
       } else {
-        await companyService.createCompany(formData);
+        company = await companyService.createCompany(formData);
       }
+
+      if (logoFile && company.id) {
+        await companyService.uploadLogo(company.id, logoFile);
+      }
+
       navigate('/companies');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to save company');
@@ -79,6 +91,35 @@ export const CompanyForm: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    if (id) {
+      try {
+        setLoading(true);
+        await companyService.removeLogo(id);
+        setLogoPreview(null);
+        setLogoFile(null);
+        setFormData(prev => ({ ...prev, logo: undefined }));
+      } catch (err) {
+        setError('Failed to remove logo');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const parseBusinessInfo = () => {
@@ -98,11 +139,9 @@ export const CompanyForm: React.FC = () => {
             newFormData.tradeName = value;
             break;
           case 'lloji biznesit':
-            // Map Albanian business types to BusinessType enum
             const businessTypeMap: { [key: string]: BusinessType } = {
               'shoqëri me përgjegjësi të kufizuara': BusinessType.LLC,
               'person fizik': BusinessType.SOLE_PROPRIETORSHIP,
-              // Add more mappings as needed
             };
             const mappedType = businessTypeMap[value.toLowerCase()];
             if (mappedType) {
@@ -119,7 +158,6 @@ export const CompanyForm: React.FC = () => {
             newFormData.fiscalNumber = value;
             break;
           case 'data e regjistrimit':
-            // Convert date from DD/MM/YYYY to YYYY-MM-DD
             const [day, month, year] = value.split('/');
             newFormData.registrationDate = `${year}-${month}-${day}`;
             break;
@@ -196,6 +234,50 @@ export const CompanyForm: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl">
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Company Logo
+          </label>
+          <div className="flex items-center space-x-4">
+            {logoPreview && (
+              <div className="relative">
+                <img
+                  src={logoPreview}
+                  alt="Company logo"
+                  className="h-20 w-20 object-contain border rounded-md"
+                />
+                {id && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveLogo}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="flex-1">
+              <input
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={handleLogoChange}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100"
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Supported formats: JPG, PNG. Max size: 2MB
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -341,7 +423,7 @@ export const CompanyForm: React.FC = () => {
               Phone Number
             </label>
             <input
-              type="tel"
+              type="text"
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
@@ -378,20 +460,19 @@ export const CompanyForm: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex space-x-4 mt-6">
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Saving...' : 'Save'}
-          </button>
+        <div className="mt-6 flex justify-end space-x-3">
           <button
             type="button"
             onClick={() => navigate('/companies')}
-            className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            {id ? 'Update' : 'Create'} Company
           </button>
         </div>
       </form>
