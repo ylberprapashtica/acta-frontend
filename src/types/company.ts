@@ -21,6 +21,7 @@ export interface Company {
   email: string;
   bankAccount: string;
   logo?: string;
+  tenantId: string;
   createdAt: string;
   updatedAt: string;
 }

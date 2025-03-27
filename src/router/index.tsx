@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { CompanyList } from '../components/company/CompanyList';
-import { CompanyForm } from '../components/company/CompanyForm';
+import { CompanyList } from '../components/CompanyList';
+import { CompanyForm } from '../components/CompanyForm';
 import { UserLayout } from '../components/layout/UserLayout';
 import { ArticleList } from '../components/ArticleList';
 import { ArticleForm } from '../components/ArticleForm';

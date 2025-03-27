@@ -1,41 +1,6 @@
 import axiosInstance from './axios';
 import { useTenant } from '../contexts/TenantContext';
-
-export interface Company {
-  id: string;
-  businessName: string;
-  tradeName?: string;
-  businessType: string;
-  uniqueIdentificationNumber: string;
-  businessNumber?: string;
-  fiscalNumber?: string;
-  vatNumber?: string;
-  registrationDate: string;
-  municipality: string;
-  address: string;
-  phoneNumber: string;
-  email: string;
-  bankAccount?: string;
-  logo?: string;
-  tenantId: string;
-}
-
-export interface CreateCompanyDto {
-  businessName: string;
-  tradeName?: string;
-  businessType: string;
-  uniqueIdentificationNumber: string;
-  businessNumber?: string;
-  fiscalNumber?: string;
-  vatNumber?: string;
-  registrationDate: string;
-  municipality: string;
-  address: string;
-  phoneNumber: string;
-  email: string;
-  bankAccount?: string;
-  logo?: string;
-}
+import { Company, CreateCompanyDto } from '../types/company';
 
 export interface PaginatedResponse<T> {
   items: T[];
