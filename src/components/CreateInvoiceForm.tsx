@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Company } from '../types/company';
 import { Article } from '../types/article';
-import { CreateInvoiceData } from '../services/invoice.service';
+import { CreateInvoiceData } from '../services/InvoiceService';
 
 interface CreateInvoiceFormProps {
   companies: Company[];
