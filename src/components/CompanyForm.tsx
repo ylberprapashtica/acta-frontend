@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BusinessType, Company, CreateCompanyDto } from '../types/company';
-import { companyService } from '../services/company.service';
+import { companyService } from '../services/CompanyService';
 
 export const CompanyForm: React.FC = () => {
   const navigate = useNavigate();

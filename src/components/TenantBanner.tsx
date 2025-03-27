@@ -1,8 +1,9 @@
 import React from 'react';
 import { useTenant } from '../contexts/TenantContext';
-import { tenantService, Tenant } from '../services/tenant.service';
-import { authService } from '../services/auth.service';
-import { companyService, Company, PaginatedResponse } from '../services/company.service';
+import { tenantService } from '../services/TenantService';
+import { authService } from '../services/AuthService';
+import { companyService } from '../services/CompanyService';
+import { Company } from '../types/company';
 
 export function TenantBanner() {
   const { tenant, setTenant } = useTenant();

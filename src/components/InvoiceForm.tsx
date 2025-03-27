@@ -3,9 +3,9 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Invoice, InvoiceItem } from '../types/invoice';
 import { Company, BusinessType } from '../types/company';
 import { Article, VatCode } from '../types/article';
-import { invoiceService } from '../services/invoice.service';
-import { companyService } from '../services/company.service';
-import { articleService } from '../services/article.service';
+import { invoiceService } from '../services/InvoiceService';
+import { companyService } from '../services/CompanyService';
+import { articleService } from '../services/ArticleService';
 import { DownloadInvoiceButton } from './common/DownloadInvoiceButton';
 
 export const InvoiceForm: React.FC = () => {
@@ -41,17 +41,15 @@ export const InvoiceForm: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [companiesData, articlesData] = await Promise.all([
-        companyService.getCompanies(),
-        articleService.getArticles(),
-      ]);
-
+      const companiesData = await companyService.getCompanies();
       setCompanies(companiesData.items);
-      setArticles(articlesData.items);
 
       if (id) {
         const invoiceData = await invoiceService.getInvoice(Number(id));
         setInvoice(invoiceData);
+        // Load articles for the issuer company
+        const articlesData = await articleService.getArticles(1, 100, invoiceData.issuer.id);
+        setArticles(articlesData.items);
         setFormData({
           issuerId: invoiceData.issuer.id.toString(),
           recipientId: invoiceData.recipient.id.toString(),

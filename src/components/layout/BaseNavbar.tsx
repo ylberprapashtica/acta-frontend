@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { authService } from '../../services/auth.service';
 
 interface NavigationItem {
   name: string;

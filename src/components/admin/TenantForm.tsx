@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Tenant, CreateTenantDto, UpdateTenantDto } from '../../types/admin';
-import { getTenant, createTenant, updateTenant } from '../../services/admin.service';
-import { Company, companyService } from '../../services/company.service';
+import { Company } from '../../types/company';
+import { getTenant, createTenant, updateTenant } from '../../services/AdminService';
+import { companyService } from '../../services/CompanyService';
 
 export const TenantForm: React.FC = () => {
   const navigate = useNavigate();

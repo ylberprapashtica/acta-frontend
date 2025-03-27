@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Article, VatCode } from '../types/article';
 import { Company } from '../types/company';
-import { articleService } from '../services/article.service';
-import { companyService } from '../services/company.service';
+import { articleService } from '../services/ArticleService';
+import { companyService } from '../services/CompanyService';
 
 export const ArticleForm: React.FC = () => {
   const navigate = useNavigate();

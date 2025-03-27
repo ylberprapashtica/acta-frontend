@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Invoice } from '../../types/invoice';
-import { invoiceService } from '../../services/invoice.service';
+import { invoiceService } from '../../services/InvoiceService';
 
 interface DownloadInvoiceButtonProps {
   invoice: Invoice;

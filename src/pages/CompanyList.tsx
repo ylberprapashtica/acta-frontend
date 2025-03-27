@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { companyService, Company } from '../services/company.service';
+import { companyService } from '../services/CompanyService';
+import { Company } from '../types/company';
 import { useTenant } from '../contexts/TenantContext';
 
 export default function CompanyList() {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { User, CreateUserDto, UpdateUserDto, Tenant } from '../../types/admin';
-import { getUser, createUser, updateUser, getTenants } from '../../services/admin.service';
+import { getUser, createUser, updateUser, getTenants } from '../../services/AdminService';
 
 export const UserForm: React.FC = () => {
   const navigate = useNavigate();

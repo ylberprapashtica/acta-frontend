@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Company } from '../types/company';
-import { companyService } from '../services/company.service';
+import { companyService } from '../services/CompanyService';
 import { DataList } from './common/DataList';
 
 interface PaginatedResponse<T> {

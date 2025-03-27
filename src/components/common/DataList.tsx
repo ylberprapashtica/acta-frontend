@@ -91,16 +91,22 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <div className="flex justify-center space-x-2">
                       {actions.map((action, actionIndex) => (
-                        <button
-                          key={actionIndex}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            action.onClick(item);
-                          }}
-                          className={getButtonClassName(action.variant)}
-                        >
-                          {typeof action.label === 'function' ? action.label(item) : action.label}
-                        </button>
+                        action.onClick ? (
+                          <button
+                            key={actionIndex}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              action.onClick(item);
+                            }}
+                            className={getButtonClassName(action.variant)}
+                          >
+                            {typeof action.label === 'function' ? action.label(item) : action.label}
+                          </button>
+                        ) : (
+                          <span key={actionIndex} className="text-sm text-gray-900">
+                            {typeof action.label === 'function' ? action.label(item) : action.label}
+                          </span>
+                        )
                       ))}
                     </div>
                   </td>
@@ -135,16 +141,22 @@ export function DataList<T>({ data, columns, actions, onRowClick, pagination }: 
             {actions && actions.length > 0 && (
               <div className="pt-2 px-4 flex flex-wrap gap-2 justify-end">
                 {actions.map((action, actionIndex) => (
-                  <button
-                    key={actionIndex}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      action.onClick(item);
-                    }}
-                    className={getButtonClassName(action.variant)}
-                  >
-                    {typeof action.label === 'function' ? action.label(item) : action.label}
-                  </button>
+                  action.onClick ? (
+                    <button
+                      key={actionIndex}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        action.onClick(item);
+                      }}
+                      className={getButtonClassName(action.variant)}
+                    >
+                      {typeof action.label === 'function' ? action.label(item) : action.label}
+                    </button>
+                  ) : (
+                    <span key={actionIndex} className="text-sm text-gray-900">
+                      {typeof action.label === 'function' ? action.label(item) : action.label}
+                    </span>
+                  )
                 ))}
               </div>
             )}

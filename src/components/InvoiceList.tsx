@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Invoice } from '../types/invoice';
-import { invoiceService } from '../services/invoice.service';
+import { invoiceService } from '../services/InvoiceService';
 import { DataList } from './common/DataList';
 import { DownloadInvoiceButton } from './common/DownloadInvoiceButton';
 
@@ -127,7 +127,7 @@ export const InvoiceList: React.FC = () => {
     },
     {
       label: (invoice: Invoice) => <DownloadInvoiceButton invoice={invoice} variant="secondary" />,
-      onClick: () => {}, // Empty function since the button handles its own click
+      onClick: undefined, // Empty function since the button handles its own click
       variant: 'secondary' as const,
     },
     {

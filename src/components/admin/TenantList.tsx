@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Tenant } from '../../types/admin';
-import { getTenants, deleteTenant } from '../../services/admin.service';
+import { getTenants, deleteTenant } from '../../services/AdminService';
 import { DataList } from '../common/DataList';
 
 export const TenantList: React.FC = () => {

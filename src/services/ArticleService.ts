@@ -13,10 +13,21 @@ interface PaginatedResponse<T> {
 
 class ArticleService {
   async getArticles(page: number = 1, limit: number = 10, companyId?: string): Promise<PaginatedResponse<Article>> {
+    if (companyId) {
+      const response = await axiosInstance.get(`/articles/company/${companyId}`);
+      return {
+        items: response.data,
+        meta: {
+          total: response.data.length,
+          page: 1,
+          lastPage: 1,
+          limit: response.data.length
+        }
+      };
+    }
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
-      ...(companyId && { companyId }),
     });
     const response = await axiosInstance.get(`/articles?${params.toString()}`);
     return response.data;

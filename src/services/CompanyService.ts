@@ -1,5 +1,4 @@
 import axiosInstance from './axios';
-import { useTenant } from '../contexts/TenantContext';
 import { Company, CreateCompanyDto } from '../types/company';
 
 export interface PaginatedResponse<T> {

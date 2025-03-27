@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BaseNavbar } from './BaseNavbar';
 import { useTenant } from '../../contexts/TenantContext';
-import { authService } from '../../services/auth.service';
+import { authService } from '../../services/AuthService';
 
 interface NavigationItem {
   name: string;

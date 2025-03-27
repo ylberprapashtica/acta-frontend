@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User, Tenant } from '../../types/admin';
-import { getUsers, deleteUser, getTenants } from '../../services/admin.service';
+import { getUsers, deleteUser, getTenants } from '../../services/AdminService';
 import { DataList } from '../common/DataList';
 
 export const UserList: React.FC = () => {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { authService } from '../services/auth.service';
-import { tenantService } from '../services/tenant.service';
+import { authService } from '../services/AuthService';
+import { tenantService } from '../services/TenantService';
 
 interface Tenant {
   id: string;
