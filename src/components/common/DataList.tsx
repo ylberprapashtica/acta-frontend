@@ -9,7 +9,7 @@ interface Column<T> {
 
 interface Action<T> {
   label: string | ((item: T) => React.ReactNode);
-  onClick: (item: T) => void;
+  onClick: (item: T) => void | undefined;
   variant?: 'primary' | 'secondary' | 'danger';
 }
 
