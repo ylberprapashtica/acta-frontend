@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { BaseNavbar } from './BaseNavbar';
+import { useTenant } from '../../contexts/TenantContext';
+import { authService } from '../../services/auth.service';
 
 interface NavigationItem {
   name: string;
@@ -8,6 +10,11 @@ interface NavigationItem {
 
 export const UserNavbar: React.FC = () => {
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
+  const { tenant } = useTenant();
+  const currentUser = authService.getCurrentUser();
+
+  console.log('UserNavbar - Current User:', currentUser);
+  console.log('UserNavbar - Current Tenant:', tenant);
 
   const easyNavigation: NavigationItem[] = [
     { name: 'Companies', href: '/companies' },
@@ -15,10 +22,13 @@ export const UserNavbar: React.FC = () => {
     { name: 'Invoices', href: '/invoices' },
   ];
 
-  const hardNavigation: NavigationItem[] = [
-    { name: 'Admin Panel', href: '/admin' },
-    { name: 'Logout', href: '/logout' },
-  ];
+  // Only show admin panel for admin and superadmin roles
+  const hardNavigation: NavigationItem[] = currentUser?.user?.role === 'user' 
+    ? [{ name: 'Logout', href: '/logout' }]
+    : [
+        { name: 'Admin Panel', href: '/admin' },
+        { name: 'Logout', href: '/logout' },
+      ];
 
   const adminDropdown = (
     <div className="relative">
@@ -44,9 +54,13 @@ export const UserNavbar: React.FC = () => {
     </div>
   );
 
+  // Show ACTA for superadmin, tenant name for others
+  const title = currentUser?.user?.role === 'super_admin' ? 'ACTA' : tenant?.name || 'Loading...';
+  console.log('UserNavbar - Title:', title);
+
   return (
     <BaseNavbar
-      title="ACTA"
+      title={title}
       easyNavigation={easyNavigation}
       hardNavigation={hardNavigation}
       showBackButton={false}

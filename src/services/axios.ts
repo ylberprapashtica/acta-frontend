@@ -7,6 +7,11 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
+    // Skip adding Authorization header for login endpoint
+    if (config.url === '/auth/login') {
+      return config;
+    }
+    
     const token = authService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

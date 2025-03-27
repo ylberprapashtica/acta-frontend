@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authService, LoginCredentials } from '../services/auth.service';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: '',
@@ -17,8 +18,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await authService.login(credentials);
-      navigate('/');
+      const response = await authService.login(credentials);
+      // After successful login, navigate to the intended destination
+      const from = (location.state as any)?.from?.pathname || '/';
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.message || 'An error occurred during login');
     } finally {

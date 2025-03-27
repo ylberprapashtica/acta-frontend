@@ -10,7 +10,7 @@ import { TenantList } from '../components/admin/TenantList';
 import { TenantForm } from '../components/admin/TenantForm';
 import Login from '../pages/Login';
 import Logout from '../pages/Logout';
-import ProtectedRoute from '../components/ProtectedRoute';
+import { ProtectedRoute } from '../components/ProtectedRoute';
 import Home from '../pages/Home';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import { AdminPage } from '../pages/admin/AdminPage';

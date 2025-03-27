@@ -1,7 +1,43 @@
 import axiosInstance from './axios';
-import { Company, BusinessType } from '../types/company';
+import { useTenant } from '../contexts/TenantContext';
 
-interface PaginatedResponse<T> {
+export interface Company {
+  id: string;
+  businessName: string;
+  tradeName?: string;
+  businessType: string;
+  uniqueIdentificationNumber: string;
+  businessNumber?: string;
+  fiscalNumber?: string;
+  vatNumber?: string;
+  registrationDate: string;
+  municipality: string;
+  address: string;
+  phoneNumber: string;
+  email: string;
+  bankAccount?: string;
+  logo?: string;
+  tenantId: string;
+}
+
+export interface CreateCompanyDto {
+  businessName: string;
+  tradeName?: string;
+  businessType: string;
+  uniqueIdentificationNumber: string;
+  businessNumber?: string;
+  fiscalNumber?: string;
+  vatNumber?: string;
+  registrationDate: string;
+  municipality: string;
+  address: string;
+  phoneNumber: string;
+  email: string;
+  bankAccount?: string;
+  logo?: string;
+}
+
+export interface PaginatedResponse<T> {
   items: T[];
   meta: {
     total: number;
@@ -12,12 +48,10 @@ interface PaginatedResponse<T> {
 }
 
 class CompanyService {
-  async getCompanies(page: number = 1, limit: number = 10): Promise<PaginatedResponse<Company>> {
-    const params = new URLSearchParams({
-      page: page.toString(),
-      limit: limit.toString(),
+  async getCompanies(page = 1, limit = 10): Promise<PaginatedResponse<Company>> {
+    const response = await axiosInstance.get('/companies', {
+      params: { page, limit },
     });
-    const response = await axiosInstance.get(`/companies?${params.toString()}`);
     return response.data;
   }
 
@@ -26,13 +60,13 @@ class CompanyService {
     return response.data;
   }
 
-  async createCompany(data: Omit<Company, 'id' | 'createdAt' | 'updatedAt'>): Promise<Company> {
-    const response = await axiosInstance.post('/companies', data);
+  async createCompany(companyData: CreateCompanyDto): Promise<Company> {
+    const response = await axiosInstance.post('/companies', companyData);
     return response.data;
   }
 
-  async updateCompany(id: string, data: Partial<Omit<Company, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Company> {
-    const response = await axiosInstance.patch(`/companies/${id}`, data);
+  async updateCompany(id: string, companyData: Partial<CreateCompanyDto>): Promise<Company> {
+    const response = await axiosInstance.patch(`/companies/${id}`, companyData);
     return response.data;
   }
 
