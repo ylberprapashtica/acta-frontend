@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BusinessType, Company, CreateCompanyDto } from '../types/company';
 import { companyService } from '../services/CompanyService';
+import { getAPIUrl } from '../config';
 
 export const CompanyForm: React.FC = () => {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export const CompanyForm: React.FC = () => {
         logo: company.logo || '',
       });
       if (company.logo) {
-        setLogoPreview(`${import.meta.env.VITE_API_URL}/uploads/companies/${company.logo}`);
+        setLogoPreview(`${getAPIUrl()}/uploads/companies/${company.logo}`);
       }
     } catch (err) {
       setError('Failed to load company');

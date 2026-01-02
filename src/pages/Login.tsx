@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService, LoginCredentials } from '../services/AuthService';
+import { API_URL } from '../config';
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Check if we're in local development
+  const isLocalDev = API_URL.includes('localhost') || API_URL.includes('127.0.0.1');
+  
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: '',
@@ -12,18 +17,49 @@ export default function Login() {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Autofill credentials in local development
+  useEffect(() => {
+    if (isLocalDev) {
+      // Use super admin credentials from migration, or fallback to seeded user pattern
+      setCredentials({
+        email: 'admin@acta.com',
+        password: 'Acta123!',
+      });
+    }
+  }, [isLocalDev]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
+      console.log('[Login] Attempting login with:', { email: credentials.email });
       const response = await authService.login(credentials);
+      console.log('[Login] Login successful:', response);
       // After successful login, navigate to the intended destination
       const from = (location.state as any)?.from?.pathname || '/';
       navigate(from, { replace: true });
     } catch (err: any) {
-      setError(err.response?.data?.message || 'An error occurred during login');
+      console.error('[Login] Login error:', err);
+      console.error('[Login] Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        config: err.config,
+      });
+      
+      let errorMessage = 'An error occurred during login';
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      } else if (err.code === 'ERR_NETWORK') {
+        errorMessage = 'Network error: Could not connect to the server. Please check if the backend is running.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

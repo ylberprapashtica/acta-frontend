@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Company } from '../types/company';
 import { companyService } from '../services/CompanyService';
 import { DataList } from './common/DataList';
+import { getAPIUrl } from '../config';
 
 interface PaginatedResponse<T> {
   items: T[];
@@ -63,7 +64,7 @@ export const CompanyList: React.FC = () => {
         <div className="flex items-center">
           {company.logo ? (
             <img
-              src={`${import.meta.env.VITE_API_URL}/uploads/companies/${company.logo}`}
+              src={`${getAPIUrl()}/uploads/companies/${company.logo}`}
               alt={`${company.businessName} logo`}
               className="h-10 w-10 object-contain border rounded-md"
             />
