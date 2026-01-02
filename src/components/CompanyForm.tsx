@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { BusinessType, Company, CreateCompanyDto } from '../types/company';
 import { companyService } from '../services/CompanyService';
 import { getAPIUrl } from '../config';
+import { authService } from '../services/AuthService';
+import { tenantService, Tenant } from '../services/TenantService';
 
 export const CompanyForm: React.FC = () => {
   const navigate = useNavigate();
@@ -27,12 +29,39 @@ export const CompanyForm: React.FC = () => {
   const [businessInfoText, setBusinessInfoText] = useState('');
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    checkUserRole();
+  }, []);
 
   useEffect(() => {
     if (id) {
       loadCompany();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadTenants();
+    }
+  }, [isAdmin]);
+
+  const checkUserRole = () => {
+    const user = authService.getCurrentUser();
+    const userRole = user?.user?.role;
+    setIsAdmin(userRole === 'admin' || userRole === 'super_admin');
+  };
+
+  const loadTenants = async () => {
+    try {
+      const tenantsList = await tenantService.getAllTenants();
+      setTenants(tenantsList);
+    } catch (err) {
+      console.error('Failed to load tenants:', err);
+    }
+  };
 
   const loadCompany = async () => {
     try {
@@ -280,6 +309,28 @@ export const CompanyForm: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {isAdmin && (
+            <div className="form-group md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tenant
+              </label>
+              <select
+                name="tenantId"
+                value={formData.tenantId || ''}
+                onChange={handleChange}
+                required={isAdmin}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="">Select a tenant</option>
+                {tenants.map(tenant => (
+                  <option key={tenant.id} value={tenant.id}>
+                    {tenant.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="form-group">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Business Name

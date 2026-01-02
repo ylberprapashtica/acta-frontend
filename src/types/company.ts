@@ -41,4 +41,5 @@ export interface CreateCompanyDto {
   email: string;
   bankAccount: string;
   logo?: string;
+  tenantId?: string;
 } 

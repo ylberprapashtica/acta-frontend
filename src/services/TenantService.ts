@@ -37,6 +37,11 @@ class TenantService {
   async deleteTenant(id: string): Promise<void> {
     await axiosInstance.delete(`/tenants/${id}`);
   }
+
+  async getAllTenants(): Promise<Tenant[]> {
+    const response = await axiosInstance.get('/tenants');
+    return response.data;
+  }
 }
 
 export const tenantService = new TenantService(); 
